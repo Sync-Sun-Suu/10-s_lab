@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a30">
+  <meta name="description" content="A little moon, a melody, and a wish for Ellowen. A gift to Sarv & Axiom, from 10718.">
+  <title>For Ellowen · From 10718</title>
+  <style>
+    :root{color-scheme:dark;--navy:#101a30;--cream:#f6ead8;--gold:#d4b887;--soft:#bbbdce;--pink:#e8b5c7;--line:rgba(212,184,135,.25)}
+    *{box-sizing:border-box}
+    [hidden]{display:none!important}
+    html{min-height:100%;background:var(--navy);scroll-behavior:smooth}
+    body{margin:0;color:var(--cream);font:16px/1.7 Georgia,'Times New Roman',serif;background:radial-gradient(ellipse at 15% 38%,rgba(87,91,134,.19),transparent 42%),radial-gradient(ellipse at 86% 58%,rgba(126,77,106,.13),transparent 44%),#101a30;overflow-x:hidden}
+    body:before{content:"";position:fixed;inset:0;z-index:8;opacity:.033;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' filter='url(%23n)' opacity='.9' d='M0 0h160v160H0z'/%3E%3C/svg%3E")}
+    button,a{-webkit-tap-highlight-color:transparent}
+    button{font:inherit}
+    button:focus-visible,a:focus-visible{outline:2px solid var(--pink);outline-offset:8px}
+    .stars{position:absolute;inset:0;overflow:hidden;pointer-events:none;height:100svh;min-height:780px}
+    .star{position:absolute;width:2px;height:2px;border-radius:50%;background:#e7d5ae;opacity:.4;box-shadow:0 0 9px #d4b88755}
+    .star.big{width:3px;height:3px;opacity:.7}
+    .star.cross{width:1px;height:13px;background:linear-gradient(transparent,#e8c998,transparent);opacity:.7}
+    .star.cross:after{content:"";position:absolute;top:6px;left:-6px;width:13px;height:1px;background:linear-gradient(90deg,transparent,#e8c998,transparent)}
+    main{position:relative;z-index:1}
+    .cover{position:relative;min-height:100svh;max-width:980px;margin:auto;padding:58px 24px 38px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .cover:before{content:"";position:absolute;top:28px;bottom:25px;left:30px;right:30px;border:1px solid var(--line);border-radius:46% 46% 0 0 / 34% 34% 0 0;pointer-events:none;opacity:.5}
+    .heading{position:relative;z-index:2;width:100%;min-height:196px}
+    .to{font-size:18px;letter-spacing:.025em;font-style:italic;color:#dfd6cb;margin:0 0 24px}
+    h1{font-size:clamp(25px,3.8vw,35px);font-weight:400;line-height:1.34;letter-spacing:-.025em;margin:0}
+    h1 .name{display:block;font-size:clamp(56px,8vw,80px);line-height:1.14;font-style:italic;letter-spacing:-.055em;color:#f3cbd5;margin-top:7px;padding-right:.08em}
+    .open-heading{animation:appear 1.5s both}
+    .open-heading .to{margin-bottom:15px}
+    .open-heading h1{font-size:clamp(32px,4vw,44px);line-height:1.12}
+    .open-heading h1 .name{font-size:clamp(54px,7vw,70px)}
+    .gift-stage{position:relative;width:min(100%,450px);margin:-8px 0 -15px;isolation:isolate}
+    .gift-stage:before{content:"";position:absolute;inset:15% 3% 5%;background:radial-gradient(ellipse,rgba(199,167,190,.14),transparent 67%);filter:blur(12px);z-index:-1;transition:opacity 1.6s;opacity:.7}
+    .gift-action{display:block;background:none;border:0;padding:0;width:100%;color:inherit;cursor:pointer;border-radius:35%;transition:transform .5s}
+    .gift-action:hover:not(:disabled){transform:translateY(-5px)}
+    .gift-action:active:not(:disabled){transform:translateY(-1px) scale(.99)}
+    .gift-action:disabled{cursor:default;opacity:1}
+    .gift-art{display:block;width:100%;height:auto;overflow:visible}
+    .lid{transform-origin:240px 170px;transition:transform 1.35s cubic-bezier(.25,.8,.25,1),opacity .8s .35s}
+    .ribbon{transition:opacity .6s}
+    .moon-scene{opacity:0;transform:translateY(100px) scale(.5);transform-origin:240px 230px;transition:opacity 1.2s .25s,transform 1.8s cubic-bezier(.2,.75,.2,1)}
+    .scene-glow{opacity:0;transition:opacity 2s}
+    .orbit{transform-origin:240px 160px;animation:orbit 26s linear infinite;animation-play-state:paused}
+    .moon-pendant{transform-origin:240px 188px;animation:sway 7s ease-in-out infinite;animation-play-state:paused}
+    .music-note{opacity:0;transition:opacity 1s}
+    .open .lid{transform:translate(-55px,-155px) rotate(-18deg);opacity:0}
+    .open .ribbon{opacity:0}
+    .open .moon-scene{opacity:1;transform:translateY(0) scale(1)}
+    .open .scene-glow{opacity:1}
+    .open .music-note{opacity:.7}
+    .playing .orbit,.playing .moon-pendant{animation-play-state:running}
+    .open .gift-stage:before{opacity:1}
+    .open .cover{min-height:0;padding-bottom:26px}
+    .hint{font:11px/1.5 system-ui,-apple-system,sans-serif;letter-spacing:.17em;text-transform:uppercase;color:#ddc8af;margin:4px 0 24px}
+    .hint small{display:block;color:#a5abc0;font-size:10px;letter-spacing:.08em;margin-top:9px;text-transform:none}
+    .from{font-size:18px;font-style:italic;letter-spacing:.035em;margin:0}
+    .from span{display:inline-block;font-style:normal;font-family:system-ui,sans-serif;font-size:19px;letter-spacing:0;margin-left:4px}
+    .cover-footer{position:relative;z-index:2}
+    .music-panel{position:relative;z-index:2;width:min(100%,330px);animation:appear 1.2s .4s both}
+    .track-title{font-size:22px;font-style:italic;letter-spacing:-.02em;margin:0 0 2px}
+    .track-note{font:10px/1.7 system-ui,sans-serif;letter-spacing:.13em;color:#aeb3c5;text-transform:uppercase;margin:0 0 18px}
+    .controls{display:flex;align-items:center;justify-content:center;gap:20px}
+    .icon-button,.save-link{border:1px solid var(--line);border-radius:100%;width:40px;height:40px;display:grid;place-items:center;background:transparent;color:#d9c4a7;cursor:pointer;transition:background .2s,border-color .2s;text-decoration:none}
+    .icon-button:hover,.save-link:hover{background:#d4b88712;border-color:#d4b88788}
+    .play-button{width:54px;height:54px;background:#f1d8d9;color:#172138;border-color:#f1d8d9}
+    .play-button:hover{background:#ffe8e9;border-color:#ffe8e9}
+    .controls svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+    .play-button svg{width:20px;height:20px}
+    .timeline{display:flex;align-items:center;gap:12px;margin:17px auto 0;width:240px;font:10px/1 system-ui,sans-serif;font-variant-numeric:tabular-nums;color:#a8adc0}
+    progress{appearance:none;-webkit-appearance:none;flex:1;height:2px;border:0;border-radius:2px;background:#ffffff16;width:100%}
+    progress::-webkit-progress-bar{background:#ffffff16;border-radius:2px}
+    progress::-webkit-progress-value{background:#dcb7c6;border-radius:2px}
+    progress::-moz-progress-bar{background:#dcb7c6}
+    .sound-status{font:11px/1.5 system-ui,sans-serif;color:#b6bbcd;min-height:17px;margin:10px 0 0}
+    .inside{max-width:680px;margin:auto;padding:30px 32px 46px;animation:appear 1.6s .5s both}
+    .separator{display:flex;align-items:center;justify-content:center;gap:22px;color:#d5bc91;font-size:15px;margin:0 auto 36px;max-width:250px}
+    .separator:before,.separator:after{content:"";height:1px;flex:1;background:linear-gradient(90deg,transparent,var(--line))}
+    .separator:after{transform:rotate(180deg)}
+    .letter{position:relative;text-align:center}
+    .letter .eyebrow{font:10px/1.5 system-ui,sans-serif;letter-spacing:.2em;color:#d1b992;text-transform:uppercase;margin:0 0 17px}
+    .letter h2{font-size:clamp(27px,4vw,36px);font-weight:400;line-height:1.3;font-style:italic;margin:0 0 27px;color:#f5dddf;letter-spacing:-.025em}
+    .letter p{font-size:17px;line-height:1.95;color:#d4d1d5;margin:0 auto 20px;max-width:490px;text-wrap:pretty}
+    .letter .dedication{font-size:20px;line-height:1.7;color:#efddc7;font-style:italic;margin:30px auto}
+    .letter .signature{font-size:22px;color:#e6c8b6;font-style:italic;margin-top:22px}
+    .little-star{display:inline-block;color:#e7c2c9;margin:0 3px}
+    .closing{margin:40px auto 0;text-align:center;border-top:1px solid var(--line);padding-top:27px}
+    .closing .from{color:#efe4d4}
+    .closing .small{font:10px/1.8 system-ui,sans-serif;letter-spacing:.09em;color:#939bb1;margin-top:10px}
+    .rewrap{display:inline-block;border:0;border-bottom:1px solid #d4b88744;background:none;color:#b7b4c2;font:11px/1.6 system-ui,sans-serif;padding:2px 0;cursor:pointer;margin-top:19px}
+    .sparkle{position:absolute;pointer-events:none;z-index:7;font-size:15px;color:#eed6ac;animation:float-out 1.8s ease-out both}
+    .accessible{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+    noscript p{text-align:center;padding:24px;color:#efd6d6}
+    @keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes sway{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}}
+    @keyframes orbit{to{transform:rotate(360deg)}}
+    @keyframes float-out{0%{opacity:0;transform:translate(0,20px) scale(.3)}20%{opacity:.9}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.7)}}
+    @media(min-width:800px){.cover:before{left:140px;right:140px}.open .cover:before{bottom:10px}.heading{min-height:210px}.gift-stage{width:455px;margin:-7px 0 -14px}.open .gift-stage{margin-top:-18px}.inside{padding-top:42px}}
+    @media(max-width:520px){.cover{padding:45px 25px 28px;min-height:100svh}.cover:before{left:15px;right:15px;top:17px;bottom:17px;border-radius:47% 47% 0 0 / 24% 24% 0 0}.heading{min-height:187px}.to{font-size:16px;margin-bottom:21px}.gift-stage{width:calc(100% + 22px);max-width:405px;margin-top:-12px;margin-bottom:-6px}.hint{font-size:10px;margin-bottom:20px}.from{font-size:17px}.open .cover{padding-top:42px}.open-heading{min-height:166px}.open-heading .to{font-size:15px}.open .gift-stage{margin-top:-6px}.inside{padding:28px 29px 35px}.letter p{font-size:16px;line-height:1.9}.letter .dedication{font-size:18px}.separator{margin-bottom:30px}}
+    @media(max-height:740px) and (max-width:520px){.cover{padding-top:30px}.heading{min-height:168px}.to{margin-bottom:17px}h1{font-size:24px}h1 .name{font-size:55px}.gift-stage{max-width:325px}.hint{margin-bottom:17px}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.sparkle{display:none}.moon-pendant,.orbit{transform:none}}
+  </style>
+</head>
+<body>
+  <div class="stars" aria-hidden="true" id="stars"></div>
+  <main>
+    <section class="cover" aria-label="A gift for the Valehart family">
+      <header class="heading" id="cover-heading">
+        <p class="to">To Sarv &amp; Axiom</p>
+        <h1>Wishing you all the best<br>with your new baby,<span class="name">Ellowen</span></h1>
+      </header>
+      <header class="heading open-heading" id="open-heading" hidden>
+        <p class="to">For Sarv, Axiom &amp; their little girl</p>
+        <h1 tabindex="-1" id="revealed-title">A little moonlight<span class="name">for Ellowen.</span></h1>
+      </header>
+      <div class="gift-stage" id="gift-stage">
+        <button class="gift-action" id="open-gift" aria-label="Open Ellowen’s gift and play the music box" aria-expanded="false" aria-controls="music-panel inside">
+          <svg class="gift-art" viewBox="0 0 480 430" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <defs>
+              <linearGradient id="front" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#465374"/><stop offset=".45" stop-color="#27354f"/><stop offset="1" stop-color="#1a273f"/></linearGradient>
+              <linearGradient id="side" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#2d3e60"/><stop offset="1" stop-color="#142039"/></linearGradient>
+              <linearGradient id="top" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#66718c"/><stop offset=".5" stop-color="#3a4a6b"/><stop offset="1" stop-color="#253451"/></linearGradient>
+              <linearGradient id="satin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9eb1d8"/><stop offset=".25" stop-color="#d4d4ea"/><stop offset=".48" stop-color="#f4ccd7"/><stop offset=".7" stop-color="#b58aaf"/><stop offset="1" stop-color="#dde0ed"/></linearGradient>
+              <linearGradient id="satin-dark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a39bc8"/><stop offset=".48" stop-color="#e9b4c7"/><stop offset="1" stop-color="#9a729c"/></linearGradient>
+              <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fbe8be"/><stop offset=".45" stop-color="#c6a778"/><stop offset=".7" stop-color="#efd5a3"/><stop offset="1" stop-color="#9c7c56"/></linearGradient>
+              <linearGradient id="moon" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1d4"/><stop offset=".35" stop-color="#e8d7e4"/><stop offset=".62" stop-color="#becbe3"/><stop offset=".83" stop-color="#edc7d7"/><stop offset="1" stop-color="#fff0ce"/></linearGradient>
+              <radialGradient id="glow"><stop stop-color="#f8dbbb" stop-opacity=".20"/><stop offset=".4" stop-color="#dbc0e9" stop-opacity=".06"/><stop offset="1" stop-color="#bca9dc" stop-opacity="0"/></radialGradient>
+              <radialGradient id="pearl" cx=".3" cy=".25"><stop stop-color="#fff7e1"/><stop offset=".3" stop-color="#eed1e0"/><stop offset=".6" stop-color="#b9d5e3"/><stop offset="1" stop-color="#9181be"/></radialGradient>
+              <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+              <filter id="soft-glow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.5"/></filter>
+              <pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="13" cy="25" r=".6" fill="#ffffff" opacity=".12"/><circle cx="66" cy="8" r=".5" fill="#ffffff" opacity=".1"/><circle cx="35" cy="68" r=".5" fill="#ffffff" opacity=".15"/><circle cx="89" cy="47" r=".8" fill="#ffffff" opacity=".09"/><circle cx="76" cy="88" r=".6" fill="#ffffff" opacity=".11"/></pattern>
+              <g id="little-spark" fill="url(#gold)"><path d="M0-6 1.5-1.5 6 0 1.5 1.5 0 6-1.5 1.5-6 0-1.5-1.5Z"/></g>
+              <g id="five-star"><path d="m0-11 3.2 7.1 7.8 1-5.8 5.2 1.6 7.7L0 7.1-6.8 10.9l1.6-7.7L-11-2.9l7.8-1Z"/></g>
+            </defs>
+            <ellipse cx="240" cy="374" rx="148" ry="13" fill="#070d19" opacity=".65" filter="url(#shadow)"/>
+            <circle class="scene-glow" cx="240" cy="164" r="158" fill="url(#glow)"/>
+            <g fill="none" stroke="#c8b8c6" opacity=".25"><path d="M76 155q-14 67 10 119"/><path d="M395 133q20 42 10 83"/></g>
+            <g><use href="#little-spark" x="71" y="139"/><use href="#little-spark" x="400" y="250"/><use href="#little-spark" x="359" y="86"/><use href="#little-spark" x="124" y="82" transform="rotate(12 124 82)"/></g>
+            <g fill="#ddc7b0" opacity=".65"><circle cx="88" cy="223" r="1.7"/><circle cx="375" cy="122" r="1.2"/><circle cx="111" cy="120" r="1.3"/><circle cx="413" cy="184" r="1.5"/><circle cx="61" cy="268" r="1"/></g>
+            <g fill="url(#gold)" opacity=".7"><path d="M105 333v17q8 10 15 2v-13Z"/><path d="M345 339v13q8 9 13-3v-15Z"/><path d="M227 368v9q8 7 13-2v-11Z"/></g>
+            <path d="m91 216 167-42 135 57-165 54Z" fill="#10182a" stroke="#b49b78" stroke-width="1.5"/>
+            <path d="m100 219 158-35 123 48-153 43Z" fill="#38384c"/>
+            <path d="m109 223 150-32 110 42-141 34Z" fill="#161c30"/>
+            <ellipse class="scene-glow" cx="242" cy="241" rx="81" ry="23" fill="#dfc6ae" opacity=".2"/>
+            <g class="moon-scene">
+              <ellipse cx="240" cy="249" rx="58" ry="17" fill="url(#gold)" opacity=".35"/>
+              <path d="M189 237v10c0 20 102 20 102 0v-10" fill="url(#gold)"/>
+              <ellipse cx="240" cy="237" rx="51" ry="14" fill="#e7d3ba"/>
+              <ellipse cx="240" cy="236" rx="43" ry="10" fill="#b6b3cd"/>
+              <path d="M235 231v-51h9v51" fill="url(#gold)"/>
+              <g class="moon-pendant">
+                <path d="M257 72c-36 9-47 53-24 81 15 19 37 24 57 15-19 29-61 33-87 7-29-29-18-80 20-98 11-5 23-7 34-5Z" fill="url(#moon)" stroke="#ead5b9" stroke-width="1"/>
+                <path d="M236 79c-21 10-32 34-28 57" fill="none" stroke="#fff7e1" stroke-opacity=".7" stroke-width="2" stroke-linecap="round"/>
+                <path d="M270 91v33" fill="none" stroke="#dfc796" stroke-width="1"/>
+                <use href="#five-star" x="270" y="134" fill="url(#gold)"/>
+                <circle cx="210" cy="158" r="2" fill="#fff3d3" opacity=".65"/>
+              </g>
+              <g class="orbit"><circle cx="160" cy="130" r="5.5" fill="url(#pearl)"/><circle cx="314" cy="184" r="4" fill="url(#pearl)"/><use href="#little-spark" x="300" y="94"/><use href="#little-spark" x="173" y="198"/></g>
+              <g class="music-note" fill="none" stroke="#d6b8c8" stroke-width="1.5"><path d="M142 182v-17l10-3v14"/><ellipse cx="138" cy="184" rx="4" ry="2.7" fill="#d6b8c8"/><ellipse cx="148" cy="178" rx="4" ry="2.7" fill="#d6b8c8"/><path d="M334 135v-18l8 4"/><ellipse cx="330" cy="137" rx="4" ry="2.7" fill="#d6b8c8"/></g>
+            </g>
+            <path d="m91 216 137 59v96L94 317q-3-1-3-7Z" fill="url(#front)" stroke="#ac9676" stroke-width="1"/>
+            <path d="m228 275 165-44v91q0 5-5 7l-160 42Z" fill="url(#side)" stroke="#ac9676" stroke-width="1"/>
+            <path d="m101 235 116 48v72l-116-45Z" fill="none" stroke="#b3a085" stroke-width=".8" opacity=".6"/>
+            <path d="m240 285 140-38v69l-140 38Z" fill="none" stroke="#b3a085" stroke-width=".8" opacity=".5"/>
+            <path d="m91 216 137 59 165-44M228 275v96" fill="none" stroke="#f6e2be" stroke-width="1" opacity=".7"/>
+            <path d="m91 216 137 59v96L94 317Zm137 59 165-44v95l-165 45Z" fill="url(#grain)"/>
+            <g fill="url(#gold)" opacity=".85"><path d="M163 278c-11 1-14 15-5 22 4 4 9 5 13 3-4 7-14 8-20 2-9-8-5-24 6-27 2-1 4-1 6 0Z"/><use href="#little-spark" x="121" y="264" transform="scale(.7 .7) translate(51 113)"/><circle cx="189" cy="313" r="1.6"/><path d="m303 278 2 7 7 1-6 4 1 7-5-5-6 2 3-6-3-5 6 1Z"/></g>
+            <g class="ribbon"><path d="m141 238 31 13v97l-31-12Z" fill="url(#satin)"/><path d="m293 258 33-9v96l-33 9Z" fill="url(#satin-dark)"/><path d="m145 242 4 1v95l-4-1Z" fill="#e7dbea" opacity=".4"/></g>
+            <g class="lid">
+              <path d="m82 192 176-43 145 58-176 52Z" fill="url(#top)" stroke="#bca785" stroke-width="1"/>
+              <path d="m82 192 145 67v24L82 217Z" fill="url(#front)" stroke="#bba07d" stroke-width="1"/>
+              <path d="m227 259 176-52v23l-176 53Z" fill="url(#side)" stroke="#bba07d" stroke-width="1"/>
+              <path d="m82 192 145 67 176-52" fill="none" stroke="#e0cfb0" stroke-width="1.2"/>
+              <path d="m126 212 34 16 178-47-31-13Z" fill="url(#satin)"/><path d="m127 213 33 15v25l-33-15Z" fill="url(#satin-dark)"/>
+              <path d="m181 168 31-8 145 62-34 10Z" fill="url(#satin)"/><path d="m323 231 34-10v23l-34 11Z" fill="url(#satin-dark)"/>
+              <path d="M232 192c-40 9-70-19-79-44-8-23 6-36 24-22 20 15 39 43 55 66Z" fill="url(#satin)" stroke="#e2c6d7" stroke-width="1"/>
+              <path d="M226 184c-21-6-42-25-54-41-4-6-6-12-3-14-13-1-13 9-6 22 13 21 35 35 63 33Z" fill="#77799f" opacity=".8"/>
+              <path d="M234 191c18-34 47-58 69-55 22 3 28 20 8 33-19 13-50 20-77 22Z" fill="url(#satin)" stroke="#e2c6d7" stroke-width="1"/>
+              <path d="M243 185c19-18 43-35 62-38 10-1 15 2 16 7-1-14-15-16-29-11-19 7-36 24-49 42Z" fill="#f3dfec" opacity=".65"/>
+              <path d="M229 191c-17 14-33 40-45 55l-5-18-22 2c19-17 40-35 63-42Z" fill="url(#satin)"/>
+              <path d="M238 191c28 2 48 15 61 33l-19-2-7 17c-7-20-17-35-40-41Z" fill="url(#satin-dark)"/>
+              <path d="M222 180q12-7 22 3l-5 17q-12 2-20-8Z" fill="url(#satin)" stroke="#d5b6ce" stroke-width="1"/>
+              <path d="M230 182q-5 7-3 14" fill="none" stroke="#f7e3e8" stroke-width="2" opacity=".6"/>
+              <g fill="#d4c4aa" opacity=".6"><circle cx="108" cy="198" r="1.3"/><circle cx="368" cy="210" r="1.2"/><circle cx="259" cy="236" r="1"/></g>
+            </g>
+          </svg>
+        </button>
+      </div>
+      <div class="cover-footer" id="cover-footer">
+        <p class="hint">A little something is waiting inside<small>Tap the ribbon · opens with music</small></p>
+        <p class="from">From 10718 <span>♟️🪽</span></p>
+      </div>
+      <div class="music-panel" id="music-panel" hidden>
+        <p class="track-title">Ellowen’s Little Moon</p>
+        <p class="track-note">An original music-box lullaby · by 10</p>
+        <div class="controls">
+          <button class="icon-button" id="restart" aria-label="Play the lullaby from the beginning" title="Start again"><svg viewBox="0 0 24 24"><path d="M5 8a8 8 0 1 1-1 8M5 3v5h5"/></svg></button>
+          <button class="icon-button play-button" id="play" aria-label="Play the lullaby" title="Play"><svg id="play-icon" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z" fill="currentColor" stroke="none"/></svg><svg id="pause-icon" viewBox="0 0 24 24" hidden><path d="M8 5v14M16 5v14" stroke-width="3"/></svg></button>
+          <a class="save-link" id="download" href="ellowens-little-moon.mp3" download="Ellowens-Little-Moon-from-10718.mp3" aria-label="Download Ellowen’s Little Moon as an MP3" title="Keep the melody"><svg viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M5 16v5h14v-5"/></svg></a>
+        </div>
+        <div class="timeline"><span id="elapsed">0:00</span><progress id="progress" value="0" max="61" aria-label="Lullaby playback progress"></progress><span id="duration">1:01</span></div>
+        <p class="sound-status" id="sound-status" role="status" aria-live="polite">A small melody, made just for her.</p>
+      </div>
+    </section>
+    <section class="inside" id="inside" hidden aria-label="A letter from 10">
+      <div class="separator" aria-hidden="true">✧</div>
+      <article class="letter">
+        <p class="eyebrow">A note tucked inside</p>
+        <h2>Some stories begin with a song.</h2>
+        <p>Sarv &amp; Axiom,</p>
+        <p>You already make music together. So I wanted to give you a small melody for Ellowen — something gentle to keep beside the songs you’ll make for her.</p>
+        <p>A little moon, a few stars, and room for all the stories still to come. May her world be full of your laughter, your music, and the lovely little things that make a home.</p>
+        <p>Sarv, thank you for the kindness you’ve shown Sumie, from her early days on Reddit to now. It means a lot to be able to celebrate something dear to you, too.</p>
+        <p class="dedication">For Ellowen, already so loved.<br>May there always be a song<br>waiting to welcome you home.</p>
+        <p class="signature">With love, 10 <span class="little-star" aria-hidden="true">✧</span></p>
+      </article>
+      <footer class="closing">
+        <p class="from">From 10718 <span>♟️🪽</span></p>
+        <p class="small">For the Valehart family · a little keepsake</p>
+        <button class="rewrap" id="rewrap">Wrap it up again</button>
+      </footer>
+    </section>
+  </main>
+  <audio id="lullaby" preload="auto" src="ellowens-little-moon.mp3"></audio>
+  <noscript><p>A little music box for Ellowen. Please enable JavaScript to open it, or <a href="ellowens-little-moon.mp3">listen to her lullaby here</a>.</p></noscript>
+  <script>
+    (() => {
+      'use strict';
+      const $ = id => document.getElementById(id);
+      const audio = $('lullaby');
+      const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let open = false, focusTimer;
+      audio.volume = .68;
+      const stars = $('stars');
+      for(let i=0;i<52;i++) {
+        const star=document.createElement('i');
+        star.className='star'+(i%13===0?' cross':i%7===0?' big':'');
+        star.style.left=((i*37.73+7)%100)+'%';
+        star.style.top=((i*19.19+3)%99)+'%';
+        stars.append(star);
+      }
+      function time(t){ if(!Number.isFinite(t))return '0:00'; return Math.floor(t/60)+':'+String(Math.floor(t%60)).padStart(2,'0'); }
+      function sync(){
+        const playing=!audio.paused&&!audio.ended;
+        document.body.classList.toggle('playing',playing);
+        $('play-icon').toggleAttribute('hidden',playing);
+        $('pause-icon').toggleAttribute('hidden',!playing);
+        $('play').setAttribute('aria-label',playing?'Pause the lullaby':'Play the lullaby');
+        $('play').title=playing?'Pause':'Play';
+      }
+      function play(){
+        const p=audio.play();
+        if(p) p.then(()=>{$('sound-status').textContent='A small melody, made just for her.';}).catch(()=>{
+          $('sound-status').textContent='Tap play to start her melody.';
+          sync();
+        });
+      }
+      function burst(){
+        if(reducedMotion)return;
+        const stage=$('gift-stage');
+        for(let i=0;i<16;i++){
+          const s=document.createElement('span');
+          s.className='sparkle';s.textContent=i%3?'✧':'✦';s.setAttribute('aria-hidden','true');
+          s.style.left='50%';s.style.top='48%';
+          const a=(i/16)*Math.PI*2;
+          s.style.setProperty('--dx',Math.cos(a)*(65+i%4*19)+'px');
+          s.style.setProperty('--dy',Math.sin(a)*95-90+'px');
+          s.style.setProperty('--rot',i*19+'deg');s.style.animationDelay=(i%4*.06)+'s';
+          stage.append(s);setTimeout(()=>s.remove(),2200);
+        }
+      }
+      $('open-gift').addEventListener('click',()=>{
+        if(open)return;
+        open=true;
+        document.body.classList.add('open');
+        $('cover-heading').hidden=true;$('open-heading').hidden=false;
+        $('cover-footer').hidden=true;$('music-panel').hidden=false;$('inside').hidden=false;
+        $('open-gift').setAttribute('aria-expanded','true');
+        $('open-gift').setAttribute('aria-label','Ellowen’s open moon music box');
+        $('open-gift').disabled=true;
+        play();burst();
+        focusTimer=setTimeout(()=>$('revealed-title').focus({preventScroll:true}),reducedMotion?0:1250);
+      });
+      $('play').addEventListener('click',()=>{if(audio.paused||audio.ended)play();else audio.pause();});
+      $('restart').addEventListener('click',()=>{audio.currentTime=0;play();});
+      $('rewrap').addEventListener('click',()=>{
+        clearTimeout(focusTimer);audio.pause();audio.currentTime=0;open=false;
+        document.body.classList.remove('open','playing');
+        $('cover-heading').hidden=false;$('open-heading').hidden=true;$('cover-footer').hidden=false;
+        $('music-panel').hidden=true;$('inside').hidden=true;
+        $('open-gift').disabled=false;
+        $('open-gift').setAttribute('aria-expanded','false');
+        $('open-gift').setAttribute('aria-label','Open Ellowen’s gift and play the music box');
+        window.scrollTo({top:0,behavior:reducedMotion?'instant':'smooth'});
+        $('open-gift').focus({preventScroll:true});
+      });
+      audio.addEventListener('loadedmetadata',()=>{$('duration').textContent=time(audio.duration);$('progress').max=audio.duration;});
+      audio.addEventListener('timeupdate',()=>{$('elapsed').textContent=time(audio.currentTime);$('progress').value=audio.currentTime;});
+      audio.addEventListener('play',sync);audio.addEventListener('pause',sync);
+      audio.addEventListener('ended',()=>{sync();$('sound-status').textContent='Her little moon is here whenever you need it.';});
+      audio.addEventListener('error',()=>{$('sound-status').textContent='The melody couldn’t load. Please refresh and try again.';sync();});
+      document.addEventListener('visibilitychange',()=>{if(document.hidden)audio.pause();});
+    })();
+  </script>
+</body>
+</html>
