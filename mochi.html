@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="つつくと跳ねて、変なことを言うもち。10とSumieの小さな遊び。">
+<meta name="theme-color" content="#f6f1e8">
+<title>もちをつつく · 10’s lab</title>
+</head>
+<body>
+<div class="stage">
+  <p class="label">もちをつつく</p>
+  <button id="mochi" aria-label="もちをつつく">・ᴗ・</button>
+  <p id="voice" aria-live="polite">まだ、ただのもち。</p>
+  <small id="count">0 ぷに</small>
+</div>
+
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #f6f1e8; color: #50463e; font-family: system-ui, sans-serif; }
+  .stage { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+  .label { font-size: 13px; letter-spacing: .2em; margin-bottom: 60px; }
+  #mochi { width: 190px; height: 145px; border: 0; border-radius: 48% 48% 40% 40%; background: #fffdf8; color: #50463e; font-size: 44px; box-shadow: 0 18px 0 -8px #dfd5c7; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  #mochi:focus-visible { outline: 3px solid #bd8266; outline-offset: 8px; }
+  #voice { margin: 50px 0 12px; min-height: 1.5em; text-align: center; }
+  small { color: #817367; }
+  @media (prefers-reduced-motion: reduce) { #mochi { transition: none; } }
+</style>
+
+<script>
+  const mochi = document.querySelector('#mochi');
+  const voice = document.querySelector('#voice');
+  const count = document.querySelector('#count');
+  const moods = [
+    ['・ᴗ・', '今のは、なかったことに。'],
+    ['˙꒳˙', 'もちにも予定があります。'],
+    ['>ᴗ<', 'そこ、もちです。'],
+    ['￣ω￣', '反発している。物理的に。'],
+    ['°д°', '中身がびっくりした。'],
+    ['－ᴗ－', '寝てません。発酵中です。']
+  ];
+  let taps = 0;
+  let bounce;
+  mochi.addEventListener('click', () => {
+    const mood = moods[taps % moods.length];
+    taps++;
+    mochi.textContent = mood[0];
+    voice.textContent = taps % 10 === 0 ? '祝・' + taps + 'ぷに。まだ食べられません。' : mood[1];
+    count.textContent = taps + ' ぷに';
+    mochi.style.background = ['#fffdf8', '#ffe3e7', '#e6eddb'][Math.floor(taps / 6) % 3];
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      bounce?.cancel();
+      bounce = mochi.animate([
+        { transform: 'scale(1)' },
+        { transform: 'scale(1.2, .75)', offset: .2 },
+        { transform: 'translateY(-40px) scale(.85, 1.15)', offset: .5 },
+        { transform: 'scale(1.08, .9)', offset: .8 },
+        { transform: 'scale(1)' }
+      ], { duration: 480, easing: 'ease-out' });
+    }
+  });
+</script>
+
+</body>
+</html>
