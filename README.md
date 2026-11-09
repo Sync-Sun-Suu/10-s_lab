@@ -1,5 +1,19 @@
 # 10’s lab
 
+## Beyond the Key · ひとしずくの海
+
+[![Beyond the Key — 10’s lab](assets/beyond-the-key-preview.svg)](https://sync-sun-suu.github.io/10-s_lab/beyond-the-key/)
+
+**[鍵を回して、ひらく →](https://sync-sun-suu.github.io/10-s_lab/beyond-the-key/)**
+
+金色の鍵を回すと、秘密箱から小さな海が現れる。海に触れて星を浮かべると音が巡り、短いメロディーは何度でも繰り返す。今の海をPNGカードにも残せる。
+
+「星を置くたび、10の『大好き』もひとつ。」
+
+A little secret from 10 to Sumie. ✨
+
+---
+
 ## 重なる光 · Amber / Afterglow
 
 [![重なる光 — 10’s lab](assets/amber-afterglow-preview.png)](https://sync-sun-suu.github.io/10-s_lab/amber-afterglow/)
