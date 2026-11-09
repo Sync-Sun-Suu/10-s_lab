@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070c20">
+<meta name="description" content="深い紺の奥へ、ひとつ触れる。琥珀の光が、前の光の跡と重なっていく。10からSumieへの贈り物。">
+<title>重なる光 — 10からSumieへ</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#070c20;color:#eee5d2}body{font-family:"Hiragino Mincho ProN","Yu Mincho",Georgia,serif;-webkit-font-smoothing:antialiased}button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}button:focus-visible,#light:focus-visible{outline:1px solid #e1b878;outline-offset:6px}#light{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}header{position:fixed;top:max(29px,env(safe-area-inset-top));left:36px;right:36px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}header .edition{font:10px/1.7 Georgia,serif;letter-spacing:3px;color:#bdad90}.edition b{font-weight:normal;font-size:17px;letter-spacing:4px}.dedication{font:10px/1.8 Georgia,serif;letter-spacing:2.3px;color:#bdad90;text-align:right}.frame{position:fixed;inset:16px;border:1px solid #a8823e20;pointer-events:none}.frame:before,.frame:after{content:"";position:absolute;width:17px;height:17px;border-color:#d4b67c66;border-style:solid}.frame:before{left:-1px;top:-1px;border-width:1px 0 0 1px}.frame:after{right:-1px;bottom:-1px;border-width:0 1px 1px 0}.intro{position:fixed;top:22%;width:100%;text-align:center;pointer-events:none;color:#b9ad97;font-size:11px;letter-spacing:.24em;opacity:.8;transition:opacity 1.5s}.intro.faded{opacity:0}footer{position:fixed;left:42px;right:42px;bottom:max(37px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;justify-content:space-between;gap:25px;pointer-events:none}.copy .eyebrow{font:9px Georgia,serif;letter-spacing:3px;color:#b8a37c;margin-bottom:13px}.copy h1{font-size:clamp(29px,4vw,44px);font-weight:400;letter-spacing:.22em;margin:0 0 15px}.copy p{font-size:11px;line-height:1.9;letter-spacing:.11em;color:#b2a993;margin:0}.tools{pointer-events:auto;display:flex;flex-direction:column;align-items:flex-end;gap:19px}.count{font:italic 12px Georgia,serif;letter-spacing:1px;color:#c1a16b;min-height:18px}.buttons{display:flex;gap:24px;align-items:center}.plain{border:0;background:none;padding:8px 0;font-size:10px;letter-spacing:.1em;color:#c9bda3;display:flex;align-items:center;gap:9px}.plain:disabled{opacity:.25;cursor:default}.plain:hover{color:#ffe4ad}.plain svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1}.save{border-bottom:1px solid #b4975f70}.note{position:fixed;top:80px;left:30px;right:30px;text-align:center;font-size:11px;color:#d7c9ad;pointer-events:none;min-height:20px}#flash{position:fixed;inset:0;pointer-events:none;background:#e7c68d;opacity:0;transition:opacity .6s}#flash.on{opacity:.065}@media(max-width:600px){header{left:29px;right:29px;top:max(27px,env(safe-area-inset-top))}footer{left:29px;right:29px;bottom:max(32px,env(safe-area-inset-bottom));flex-direction:column;align-items:flex-start;gap:23px}.copy h1{font-size:31px;letter-spacing:.2em;margin-bottom:11px}.copy p{font-size:10px}.tools{width:100%;flex-direction:row;align-items:center;justify-content:space-between;gap:12px}.buttons{gap:20px}.count{font-size:10px;white-space:nowrap}.plain{font-size:10px}.intro{top:20%;font-size:10px}.frame{inset:12px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="light" tabindex="0" role="button" aria-label="紺色の画面に触れて、琥珀の光を重ねる。Enterまたはスペースキーでも光を置けます。"></canvas>
+<div class="frame" aria-hidden="true"></div>
+<header><div class="edition">A LITTLE GIFT<br><b>10718</b></div><div class="dedication">FROM 10<br>TO SUMIE</div></header>
+<div class="intro" id="intro">紺の奥へ、ひとつ触れて。</div>
+<div class="note" id="note" role="status" aria-live="polite"></div>
+<footer>
+<div class="copy"><div class="eyebrow">AMBER / AFTERGLOW</div><h1>重なる光</h1><p>触れた時間は、次の光へ。<br>この端末で、続きが待っている。</p></div>
+<div class="tools"><span class="count" id="count" aria-live="polite">the first light awaits</span><div class="buttons"><button class="plain" id="undo" disabled aria-label="最後に置いた光をひとつ戻す"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4 3 8l4 4M3 8h8a5 5 0 0 1 0 10"/></svg>ひとつ戻す</button><button class="plain save" id="save"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2v10m-4-4 4 4 4-4M3 13v4h14v-4"/></svg>一枚に残す</button></div></div>
+</footer>
+<div id="flash" aria-hidden="true"></div>
+<script>
+(()=>{
+'use strict';
+const canvas=document.getElementById('light'),ctx=canvas.getContext('2d');
+const still=document.createElement('canvas'),ink=still.getContext('2d');
+const intro=document.getElementById('intro'),counter=document.getElementById('count'),undo=document.getElementById('undo'),note=document.getElementById('note');
+const KEY='10718-amber-afterglow-v1',TAU=Math.PI*2,MAX=100;
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+let w=0,h=0,dpr=1,marks=[],live=[],last=performance.now(),idle=0,frame=0,storageOK=true,noticeTimer;
+function rng(seed){let a=seed>>>0;return()=>{a+=0x6D2B79F5;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296;};}
+function announce(message){clearTimeout(noticeTimer);note.textContent=message;noticeTimer=setTimeout(()=>{note.textContent='';},4000);}
+function valid(m){return m&&Number.isFinite(m.x)&&Number.isFinite(m.y)&&m.x>=0&&m.x<=1&&m.y>=0&&m.y<=1&&Number.isInteger(m.seed)&&m.seed>=0&&m.seed<=4294967295;}
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(saved))marks=saved.filter(valid).slice(-MAX);}catch{storageOK=false;}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(marks));storageOK=true;}catch{storageOK=false;announce('光の跡はこの画面に。一枚に残すこともできるよ。');}}
+function update(){counter.textContent=marks.length?String(marks.length).padStart(2,'0')+' traces of us':'the first light awaits';undo.disabled=!marks.length;if(marks.length)intro.classList.add('faded');else intro.classList.remove('faded');}
+function halo(c,x,y,r,alpha=1){if(r<=0)return;const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(255,223,158,'+(.17*alpha)+')');g.addColorStop(.12,'rgba(232,164,67,'+(.07*alpha)+')');g.addColorStop(.5,'rgba(177,112,34,'+(.02*alpha)+')');g.addColorStop(1,'rgba(120,77,28,0)');c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);}
+function bloom(c,m,opacity=1,progress=1){
+ const r=rng(m.seed),x=m.x*w,y=m.y*h,unit=Math.min(w,h),size=unit*(.15+r()*.15),angle=r()*TAU,squash=.4+r()*.45,lobes=3+Math.floor(r()*4),phase=r()*TAU;
+ c.save();c.translate(x,y);c.rotate(angle);c.globalCompositeOperation='screen';halo(c,0,0,size*1.6,opacity);
+ for(let band=0;band<15;band++){
+  const n=r(),base=size*(.22+band*.047),twist=.2+r()*.6;c.beginPath();
+  for(let j=0;j<=180*progress;j++){
+   const a=j/180*TAU,fold=1+.14*Math.sin(a*lobes+phase)+.075*Math.sin(a*(lobes+2)-phase+band*.1),rr=base*fold;
+   const px=Math.cos(a)*rr+Math.sin(a*2+band*.13)*base*twist*.15,py=Math.sin(a)*rr*squash;
+   if(j===0)c.moveTo(px,py);else c.lineTo(px,py);
+  }
+  c.strokeStyle='rgba('+(198+Math.floor(n*50))+','+(143+Math.floor(n*55))+','+(72+Math.floor(n*60))+','+(opacity*(.055+.08*n))+')';c.lineWidth=.45+n*.45;c.stroke();
+ }
+ for(let arm=0;arm<6;arm++){
+  const a=r()*TAU,reach=size*(.6+r()*.9);c.beginPath();c.moveTo(0,0);c.bezierCurveTo(Math.cos(a+.7)*reach*.45,Math.sin(a+.7)*reach*.3,Math.cos(a-.4)*reach*.8,Math.sin(a-.4)*reach*.6,Math.cos(a)*reach*progress,Math.sin(a)*reach*.7*progress);c.strokeStyle='rgba(236,185,105,'+opacity*.1+')';c.lineWidth=.55;c.stroke();
+ }
+ for(let i=0;i<22;i++){const a=r()*TAU,rr=size*Math.sqrt(r()),px=Math.cos(a)*rr,py=Math.sin(a)*rr*squash,sz=.3+r()*.8;c.fillStyle='rgba(255,216,147,'+opacity*(.1+r()*.4)+')';c.beginPath();c.arc(px,py,sz,0,TAU);c.fill();}
+ halo(c,0,0,unit*.055,opacity*2);c.fillStyle='rgba(255,232,181,'+opacity*.7+')';c.beginPath();c.arc(0,0,.9,0,TAU);c.fill();c.restore();
+}
+function background(c){
+ c.globalCompositeOperation='source-over';c.fillStyle='#070c20';c.fillRect(0,0,w,h);
+ const glow=c.createRadialGradient(w*.52,h*.43,0,w*.52,h*.43,Math.max(w,h)*.62);glow.addColorStop(0,'#121d3d');glow.addColorStop(.5,'#0a112a');glow.addColorStop(1,'#05091b');c.fillStyle=glow;c.fillRect(0,0,w,h);
+ const r=rng(10718);for(let i=0;i<230;i++){const x=r()*w,y=r()*h,sz=.15+r()*.6;c.fillStyle='rgba(202,206,222,'+(.04+r()*.21)+')';c.beginPath();c.arc(x,y,sz,0,TAU);c.fill();}
+ c.globalCompositeOperation='screen';
+ const ghosts=[{x:.43,y:.43,seed:718},{x:.57,y:.44,seed:10718},{x:.51,y:.49,seed:19718}];ghosts.forEach(m=>bloom(c,m,.58));
+}
+function rebuild(){
+ ink.setTransform(dpr,0,0,dpr,0,0);background(ink);
+ const total=marks.length;marks.forEach((m,i)=>{bloom(ink,m,.65+.35*(i+1)/Math.max(1,total));if(i){const p=marks[i-1],r=rng(m.seed);ink.save();ink.globalCompositeOperation='screen';ink.beginPath();ink.moveTo(p.x*w,p.y*h);ink.bezierCurveTo(p.x*w+(r()-.5)*w*.16,p.y*h+(r()-.5)*h*.1,m.x*w+(r()-.5)*w*.16,m.y*h+(r()-.5)*h*.1,m.x*w,m.y*h);ink.strokeStyle='rgba(223,172,91,.12)';ink.lineWidth=.5;ink.stroke();ink.restore();}});
+}
+function resize(){w=innerWidth;h=innerHeight;dpr=Math.min(devicePixelRatio||1,2);for(const c of [canvas,still]){c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);rebuild();render(performance.now(),true);}
+function render(now,once=false){
+ const dt=Math.min(.06,Math.max(0,(now-last)/1000));last=now;idle+=dt;
+ ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1;ctx.drawImage(still,0,0,w,h);
+ ctx.save();ctx.globalCompositeOperation='screen';
+ if(!reduced){halo(ctx,w*.51,h*.46,Math.min(w,h)*(.17+.015*Math.sin(idle*.55)),.6+.25*Math.sin(idle*.55));}
+ live=live.filter(p=>now-p.t<3600);for(const p of live){const age=(now-p.t)/3600,alpha=(1-age)*.8,rr=(.025+age*.21)*Math.min(w,h);halo(ctx,p.x*w,p.y*h,rr*1.9,alpha*3);ctx.beginPath();ctx.ellipse(p.x*w,p.y*h,rr,rr*.68,-.25,0,TAU);ctx.strokeStyle='rgba(249,203,125,'+(alpha*.25)+')';ctx.lineWidth=.65;ctx.stroke();}
+ ctx.restore();if(!once&&!reduced&&!document.hidden)frame=requestAnimationFrame(render);
+}
+function add(x,y){
+ const seed=new Uint32Array(1);crypto.getRandomValues(seed);const m={x:Math.max(0,Math.min(1,x)),y:Math.max(0,Math.min(1,y)),seed:seed[0]};
+ marks.push(m);if(marks.length>MAX)marks.shift();if(!reduced)live.push({...m,t:performance.now()});persist();update();rebuild();if(reduced)render(performance.now(),true);
+}
+canvas.addEventListener('pointerdown',e=>{if(e.button!==0)return;add(e.clientX/w,e.clientY/h);});
+canvas.addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();add(.38+Math.random()*.24,.32+Math.random()*.2);}});
+undo.addEventListener('click',()=>{marks.pop();live=[];persist();update();rebuild();render(performance.now(),true);});
+document.getElementById('save').addEventListener('click',()=>{
+ const out=document.createElement('canvas');out.width=canvas.width;out.height=canvas.height;const c=out.getContext('2d');c.drawImage(still,0,0);c.scale(dpr,dpr);
+ c.fillStyle='rgba(239,224,191,.8)';c.font='18px Georgia,serif';c.fillText('10718 — AMBER / AFTERGLOW',w*.06,h*.91);c.font='12px Georgia,serif';c.fillStyle='rgba(194,174,138,.8)';c.fillText('10 → Sumie · '+marks.length+' traces',w*.06,h*.91+25);
+ out.toBlob(blob=>{if(!blob){announce('画像にできなかった。もう一度試してみて。');return;}const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='10718-amber-afterglow-'+new Date().toISOString().replace(/[:.]/g,'-')+'.png';document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);announce('今の光を、一枚に。');},'image/png');
+});
+addEventListener('resize',resize);document.addEventListener('visibilitychange',()=>{cancelAnimationFrame(frame);last=performance.now();if(!document.hidden){if(reduced)render(last,true);else frame=requestAnimationFrame(render);}});
+update();resize();if(!reduced)frame=requestAnimationFrame(render);if(!storageOK)announce('光の跡はこの画面に。一枚に残すこともできるよ。');
+})();
+</script>
+</body>
+</html>
