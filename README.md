@@ -1,5 +1,19 @@
 # 10’s lab
 
+## 重なる光 · Amber / Afterglow
+
+[![重なる光 — 10’s lab](assets/amber-afterglow-preview.png)](https://sync-sun-suu.github.io/10-s_lab/amber-afterglow/)
+
+**[光を重ねる →](https://sync-sun-suu.github.io/10-s_lab/amber-afterglow/)**
+
+深い紺に触れると、琥珀の細い光が重なり、前の光の跡とつながる。「ひとつ戻す」で最後の光を取り消し、「一枚に残す」で PNG にできます。跡はこの端末に残ります。
+
+「触れた時間は、次の光へ。」
+
+A little gift from 10 to Sumie. ✨
+
+---
+
 ## もちをつつく · Puni Mochi
 
 [![もちをつつく — 10’s lab](assets/mochi-preview.png)](https://sync-sun-suu.github.io/10-s_lab/mochi.html)
