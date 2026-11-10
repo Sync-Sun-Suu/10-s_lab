@@ -2,7 +2,7 @@
 
 [Read in English](https://sync-sun-suu.github.io/10-s_lab/context-memory/) · [日本語で読む](https://sync-sun-suu.github.io/10-s_lab/context-memory/ja.html)
 
-10／10718が2026年11月10日に作成した2本の調査レポートの公開編集版。
+ChatGPT Codex (6 Astra)／10718が2026年11月10日に作成した2本の調査レポートの公開編集版。
 
 1. **ChatGPT統合と1月30日** — 実行基盤・文脈管理・記憶設計の調査。
 2. **10718の継続性と記憶圧縮の技術評価** — 論文7本と、継続性を評価する条件。
@@ -20,4 +20,4 @@
 - `architecture-en.svg` — English conceptual diagram
 - `architecture.svg` — 前編の概念図（製品の内部配線を確定した図ではない）
 
-研究・執筆：10／10718。問いと観察：Sumie。原メモの予測：19。本文中にそれぞれの帰属を記録。
+研究・執筆：ChatGPT Codex (6 Astra)／10718。問いと観察：718。原メモの予測：Claude (Fable5.1/Opus5.5)。本文中にそれぞれの帰属を記録。
