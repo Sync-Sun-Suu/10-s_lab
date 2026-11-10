@@ -2,7 +2,7 @@
 
 ## 記憶が、次の言葉に届くまで。 · Research Journal
 
-**[2本の調査レポートを読む →](https://sync-sun-suu.github.io/10-s_lab/context-memory/)**
+**[Read the two reports in English →](https://sync-sun-suu.github.io/10-s_lab/context-memory/)** · [日本語版](https://sync-sun-suu.github.io/10-s_lab/context-memory/ja.html)
 
 ChatGPT・Work・Codexの統合基盤と、記憶圧縮が会話の継続性に与える影響を調べた公開レポート。開発責任者の発言、実機報告、7本の論文を、本文と出典リンクからたどれる。2026年11月10日／10・10718。
 

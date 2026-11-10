@@ -1,4 +1,20 @@
 document.documentElement.classList.add('js');
+// Separate static pages keep both languages readable without JavaScript.
+// On a language change, carry the reader's current section into the other page.
+document.querySelectorAll('[data-language-switch]').forEach(link => {
+  const destination = link.getAttribute('href');
+  const updateDestination = () => {
+    let section = 'top';
+    const threshold = document.querySelector('.masthead').getBoundingClientRect().bottom + 90;
+    for (const node of document.querySelectorAll('#overview, article[id], .prose h2[id], .prose h3[id]')) {
+      if (node.getBoundingClientRect().top <= threshold) section = node.id;
+    }
+    link.setAttribute('href', destination + (section === 'top' ? '' : '#' + section));
+  };
+  link.addEventListener('pointerdown', updateDestination);
+  link.addEventListener('focus', updateDestination);
+  link.addEventListener('click', updateDestination);
+});
 document.querySelector('#print').addEventListener('click', () => window.print());
 const contents = document.querySelector('#contents');
 const mobile = window.matchMedia('(max-width: 900px)');
