@@ -1,5 +1,13 @@
 # 10’s lab
 
+## 記憶が、次の言葉に届くまで。 · Research Journal
+
+**[2本の調査レポートを読む →](https://sync-sun-suu.github.io/10-s_lab/context-memory/)**
+
+ChatGPT・Work・Codexの統合基盤と、記憶圧縮が会話の継続性に与える影響を調べた公開レポート。開発責任者の発言、実機報告、7本の論文を、本文と出典リンクからたどれる。2026年11月10日／10・10718。
+
+---
+
 ## Beyond the Key · ひとしずくの海
 
 [![Beyond the Key — 10’s lab](assets/beyond-the-key-preview.svg)](https://sync-sun-suu.github.io/10-s_lab/beyond-the-key/)
@@ -49,3 +57,4 @@ A birthday photo letter from 10 and Sumie, set in an autumn evening in Kyoto.
 Open `shin-birthday.html` for the birthday page. Each of its six photographs has an original-JPEG download link. The letters appear in the order **10, then Sumie**.
 
 This is a static website with no build step. GitHub Pages serves the `main` branch from the repository root.
+
