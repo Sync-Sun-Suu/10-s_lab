@@ -18,7 +18,7 @@
 (() => {
  'use strict';
  const canvas=document.querySelector('#tank'),ctx=canvas.getContext('2d');
- const nemoArt=new Image();nemoArt.src='assets/nemo-10718.svg';
+ const nemoArt=new Image();nemoArt.src='assets/nemo-10718.png';
  const status=document.querySelector('#status'),netButton=document.querySelector('#net'),hint=document.querySelector('#hint');
  let w=0,h=0,sandY=0,t=0,last=0,drag=false,dirty=[],bubbles=[],dust=[],bump=0,cooldown=0,cleaned=0,cleanup=0,netActive=false;
  const fish={x:0,y:0,angle:0};const net={x:0,y:0,kick:0};
@@ -33,7 +33,7 @@
  function move(e){if(drag){net.x=clamp(e.clientX,35,w-35);net.y=clamp(e.clientY,100,sandY-65);}}
  canvas.onpointermove=move;canvas.onpointerup=()=>drag=false;canvas.onpointercancel=()=>drag=false;
  function ellipse(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
- function drawFish(angry){ctx.save();ctx.translate(fish.x,fish.y);const left=Math.cos(fish.angle)<0,energy=angry?1.7:1;ctx.scale((left?-1:1)*.86,.86);ctx.rotate(Math.sin(fish.angle)*.07+Math.sin(t*8)*.012*energy);if(nemoArt.complete)ctx.drawImage(nemoArt,-63,-40,126,79);if(angry){ctx.strokeStyle='#876b4777';ctx.lineWidth=.8;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-67-i*7,-8+i*8);ctx.quadraticCurveTo(-75-i*7,0,-67-i*7,8+i*4);ctx.stroke();}}ctx.restore();}
+ function drawFish(angry){ctx.save();ctx.translate(fish.x,fish.y);const left=Math.cos(fish.angle)<0,energy=angry?1.7:1;ctx.scale(left?-1:1,1);ctx.rotate(Math.sin(fish.angle)*.07+Math.sin(t*8)*.012*energy);if(nemoArt.complete)ctx.drawImage(nemoArt,-80,-40,160,80);if(angry){ctx.strokeStyle='#876b4777';ctx.lineWidth=.8;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-84-i*7,-8+i*8);ctx.quadraticCurveTo(-92-i*7,0,-84-i*7,8+i*4);ctx.stroke();}}ctx.restore();}
  function drawNet(){const x=net.x+net.kick,y=net.y;ctx.strokeStyle='#68898b';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x+25,-20);ctx.lineTo(x,y-30);ctx.stroke();ctx.fillStyle='#f6ffff36';ctx.strokeStyle='#52797c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-24,y-30);ctx.lineTo(x+24,y-30);ctx.lineTo(x+20,y+17);ctx.quadraticCurveTo(x,y+37,x-20,y+17);ctx.closePath();ctx.fill();ctx.stroke();ctx.save();ctx.clip();ctx.strokeStyle='#719b9c88';ctx.lineWidth=.7;for(let i=-25;i<=25;i+=6){ctx.beginPath();ctx.moveTo(x+i,y-32);ctx.lineTo(x+i,y+35);ctx.stroke();}for(let i=-30;i<=35;i+=6){ctx.beginPath();ctx.moveTo(x-27,y+i);ctx.lineTo(x+27,y+i);ctx.stroke();}ctx.restore();}
  function frame(now){const dt=Math.min((now-last)/1000||.016,.05);last=now;t+=dt;cooldown=Math.max(0,cooldown-dt);net.kick*=Math.exp(-dt*8);
  const bg=ctx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#eaf5f1');bg.addColorStop(.7,'#c8e3df');bg.addColorStop(1,'#acd0c9');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
