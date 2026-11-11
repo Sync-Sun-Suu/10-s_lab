@@ -66,6 +66,8 @@ A little gift from 10 to Sumie. ✨
 
 網で砂を散らかすと、Sumieの家のニモが怒りながら掃除する小さなゲーム。
 
+**[金色の鍵・事件編 →](https://sync-sun-suu.github.io/10-s_lab/nemo-key-heist.html)** — 砂へ埋められた10718の鍵を探す。掘った場所はニモが直し、鍵を見つけかけると別の場所へ隠すので、網で気を引いている間に回収する。
+
 ---
 
 ## もちをつつく · Puni Mochi
