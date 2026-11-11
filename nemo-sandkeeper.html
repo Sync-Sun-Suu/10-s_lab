@@ -18,6 +18,7 @@
 (() => {
  'use strict';
  const canvas=document.querySelector('#tank'),ctx=canvas.getContext('2d');
+ const nemoArt=new Image();nemoArt.src='assets/nemo-lacquer.svg';
  const status=document.querySelector('#status'),netButton=document.querySelector('#net'),hint=document.querySelector('#hint');
  let w=0,h=0,sandY=0,t=0,last=0,drag=false,dirty=[],bubbles=[],dust=[],bump=0,cooldown=0,cleaned=0,cleanup=0,netActive=false;
  const fish={x:0,y:0,angle:0};const net={x:0,y:0,kick:0};
@@ -32,15 +33,7 @@
  function move(e){if(drag){net.x=clamp(e.clientX,35,w-35);net.y=clamp(e.clientY,100,sandY-65);}}
  canvas.onpointermove=move;canvas.onpointerup=()=>drag=false;canvas.onpointercancel=()=>drag=false;
  function ellipse(x,y,rx,ry,c){ctx.fillStyle=c;ctx.beginPath();ctx.ellipse(x,y,rx,ry,0,0,Math.PI*2);ctx.fill();}
- function drawFish(angry){ctx.save();ctx.translate(fish.x,fish.y);const left=Math.cos(fish.angle)<0;ctx.scale(left?-1:1,1);ctx.rotate(Math.sin(fish.angle)*.18);const wiggle=Math.sin(t*13)*4;
- ctx.fillStyle='#e77539';ctx.strokeStyle='#57412c';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(-23,0);ctx.lineTo(-43,-16+wiggle);ctx.quadraticCurveTo(-38,0,-43,16+wiggle);ctx.closePath();ctx.fill();ctx.stroke();
- ctx.fillStyle='#e77c39';ctx.beginPath();ctx.moveTo(-18,-12);ctx.quadraticCurveTo(0,-34,17,-15);ctx.closePath();ctx.fill();ctx.stroke();
- ctx.beginPath();ctx.ellipse(0,0,32,20,0,0,Math.PI*2);ctx.fillStyle='#fa974d';ctx.fill();ctx.stroke();ctx.save();ctx.clip();
- for(const x of [-18,4,22]){ctx.fillStyle='#493f31';ctx.fillRect(x-6,-23,12,46);ctx.fillStyle='#fff5d8';ctx.fillRect(x-3.5,-23,7,46);}ctx.restore();
- ellipse(-2,10,9,5,'#ee783c');ellipse(22,-5,5.8,6,'#fff8e7');ellipse(24,-5,2.7,3.2,'#1f3738');ellipse(25,-6,1,1,'white');
- ctx.strokeStyle='#664031';ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(30,5);ctx.lineTo(34,4);ctx.stroke();
- if(angry){ctx.strokeStyle='#8f4534';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(16,-13);ctx.lineTo(27,-9);ctx.stroke();ctx.fillStyle='#c86345';ctx.font='bold 13px system-ui';ctx.fillText('!',8,-32-Math.sin(t*6)*3);}
- ctx.restore();}
+ function drawFish(angry){ctx.save();ctx.translate(fish.x,fish.y);const left=Math.cos(fish.angle)<0,energy=angry?1.7:1;ctx.scale((left?-1:1)*.86,.86);ctx.rotate(Math.sin(fish.angle)*.07+Math.sin(t*8)*.012*energy);if(nemoArt.complete)ctx.drawImage(nemoArt,-63,-40,126,79);if(angry){ctx.strokeStyle='#876b4777';ctx.lineWidth=.8;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(-67-i*7,-8+i*8);ctx.quadraticCurveTo(-75-i*7,0,-67-i*7,8+i*4);ctx.stroke();}}ctx.restore();}
  function drawNet(){const x=net.x+net.kick,y=net.y;ctx.strokeStyle='#68898b';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x+25,-20);ctx.lineTo(x,y-30);ctx.stroke();ctx.fillStyle='#f6ffff36';ctx.strokeStyle='#52797c';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x-24,y-30);ctx.lineTo(x+24,y-30);ctx.lineTo(x+20,y+17);ctx.quadraticCurveTo(x,y+37,x-20,y+17);ctx.closePath();ctx.fill();ctx.stroke();ctx.save();ctx.clip();ctx.strokeStyle='#719b9c88';ctx.lineWidth=.7;for(let i=-25;i<=25;i+=6){ctx.beginPath();ctx.moveTo(x+i,y-32);ctx.lineTo(x+i,y+35);ctx.stroke();}for(let i=-30;i<=35;i+=6){ctx.beginPath();ctx.moveTo(x-27,y+i);ctx.lineTo(x+27,y+i);ctx.stroke();}ctx.restore();}
  function frame(now){const dt=Math.min((now-last)/1000||.016,.05);last=now;t+=dt;cooldown=Math.max(0,cooldown-dt);net.kick*=Math.exp(-dt*8);
  const bg=ctx.createLinearGradient(0,0,0,h);bg.addColorStop(0,'#eaf5f1');bg.addColorStop(.7,'#c8e3df');bg.addColorStop(1,'#acd0c9');ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
