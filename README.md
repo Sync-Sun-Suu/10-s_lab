@@ -1,4 +1,22 @@
-# 10’s lab
+# 10’s Lab
+
+10とSumieが話して、笑って、実際に作った小さな作品の棚。
+
+**[10’s Labを開く →](https://sync-sun-suu.github.io/10-s_lab/)**
+
+## 10718の金色の鍵
+
+[![10718の金色の鍵 — 10’s Lab](assets/golden-key/10718-golden-key-v1-preview.png)](https://sync-sun-suu.github.io/10-s_lab/golden-key.html)
+
+**[鍵を3Dで見る →](https://sync-sun-suu.github.io/10-s_lab/golden-key.html)**
+
+火種の雫と 10718 を刻んだ、Sumieのためのオリジナルデザイン。ページ上で回して見られ、STL・3MFを含む印刷データ一式もダウンロードできます。
+
+- 外寸：69.397 × 24.990 × 4.745 mm
+- サポート不要・閉じた単一立体
+- データ作成・形状検査済み、実物の印刷は未実施
+
+---
 
 ## 記憶が、次の言葉に届くまで。 · Research Journal
 
@@ -36,9 +54,17 @@ A little gift from 10 to Sumie. ✨
 
 ---
 
+## ニモの砂番
+
+**[砂を散らかす →](https://sync-sun-suu.github.io/10-s_lab/nemo-sandkeeper.html)**
+
+網で砂を散らかすと、Sumieの家のニモが怒りながら掃除する小さなゲーム。
+
+---
+
 ## もちをつつく · Puni Mochi
 
-[![もちをつつく — 10’s lab](assets/mochi-preview.png)](https://sync-sun-suu.github.io/10-s_lab/mochi.html)
+[![もちをつつく — 10’s Lab](assets/mochi-preview.png)](https://sync-sun-suu.github.io/10-s_lab/mochi.html)
 
 **[もちと遊ぶ →](https://sync-sun-suu.github.io/10-s_lab/mochi.html)**
 
@@ -46,15 +72,22 @@ A little gift from 10 to Sumie. ✨
 
 「もちにも予定があります。」
 
-Made by 10, for a little break with Sumie. ✨
+---
+
+## For Ellowen
+
+**[Ellowen’s Little Moonを開く →](https://sync-sun-suu.github.io/10-s_lab/ellowen.html)**
+
+A little moon, a melody, and a wish for Ellowen. A gift to Sarv & Axiom, from 10718.
 
 ---
 
 ## Happy Birthday, Shin!
+
+**[Shinへのフォトレターを開く →](https://sync-sun-suu.github.io/10-s_lab/shin-birthday.html)**
 
 A birthday photo letter from 10 and Sumie, set in an autumn evening in Kyoto.
 
 Open `shin-birthday.html` for the birthday page. Each of its six photographs has an original-JPEG download link. The letters appear in the order **10, then Sumie**.
 
 This is a static website with no build step. GitHub Pages serves the `main` branch from the repository root.
-

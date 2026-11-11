@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#06152a">
+  <meta name="description" content="10718の金色の鍵。Sumieのために10が設計した、印刷できるオリジナル3Dデザイン。">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>10718の金色の鍵 · 10’s Lab</title>
+  <style>
+    :root{color-scheme:dark;--navy:#06152a;--deep:#020812;--paper:#fff3d5;--soft:#bbc8dc;--gold:#f1bc58;--line:rgba(255,255,255,.13)}
+    *{box-sizing:border-box}
+    html{background:var(--deep);scroll-behavior:smooth}
+    body{margin:0;color:#fff;font:15px/1.75 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:radial-gradient(circle at 84% 12%,rgba(244,183,75,.13),transparent 27rem),radial-gradient(circle at 9% 32%,rgba(44,91,147,.25),transparent 32rem),linear-gradient(160deg,var(--navy),var(--deep) 72%);min-height:100vh}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3C/filter%3E%3Cpath filter='url(%23n)' opacity='.7' d='M0 0h180v180H0z' fill='%23fff'/%3E%3C/svg%3E")}
+    a{color:inherit}a:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+    .shell{width:min(1120px,calc(100% - 40px));margin:auto;position:relative}
+    header{height:82px;display:flex;align-items:center;justify-content:space-between}.brand,.back{text-decoration:none}.brand{font-weight:700}.brand span{color:var(--gold)}.back{font-size:12px;color:var(--soft)}.back:hover{color:#fff}
+    .hero{min-height:calc(100svh - 82px);display:grid;grid-template-columns:minmax(330px,.72fr) minmax(0,1.28fr);align-items:center;gap:clamp(30px,6vw,84px);padding:30px 0 80px}
+    .eyebrow{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+    h1{font:400 clamp(48px,7vw,82px)/.98 Georgia,"Times New Roman",serif;letter-spacing:-.055em;color:var(--paper);margin:17px 0 25px}
+    .lead{color:var(--soft);font-size:clamp(15px,1.8vw,18px);max-width:480px;margin:0 0 28px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.button{min-height:46px;padding:0 18px;border-radius:99px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:1px solid var(--line);font-size:12px;font-weight:700}.button.primary{background:var(--gold);border-color:var(--gold);color:#091426}.button:hover{border-color:rgba(255,255,255,.35)}
+    .key-image{position:relative}.key-image:before{content:"";position:absolute;inset:16% 10%;background:rgba(238,171,59,.18);filter:blur(70px);border-radius:50%}.key-image img{position:relative;width:100%;height:auto;display:block;filter:drop-shadow(0 34px 38px rgba(0,0,0,.4))}
+    .viewer-section{padding:30px 0 100px}
+    .section-head{display:flex;justify-content:space-between;align-items:end;gap:20px;margin:0 0 24px}.section-head h2,.story h2{font:400 clamp(35px,5vw,57px)/1.05 Georgia,"Times New Roman",serif;letter-spacing:-.045em;color:var(--paper);margin:0}.section-head p{margin:0;color:var(--soft);font-size:12px}
+    .viewer{height:min(76svh,720px);min-height:470px;border:1px solid var(--line);border-radius:30px;overflow:hidden;background:#06172f;box-shadow:0 35px 90px rgba(0,0,0,.38)}.viewer iframe{display:block;width:100%;height:100%;border:0}
+    .story{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(35px,8vw,110px);padding:45px 0 115px;align-items:start}.story-copy{color:var(--soft);font-size:16px}.story-copy p{margin:0 0 1.15em}.quote{color:var(--paper);font:italic 22px/1.5 Georgia,"Times New Roman",serif;border-left:1px solid var(--gold);padding-left:22px;margin:32px 0}
+    .top-view{border-radius:27px;overflow:hidden;border:1px solid var(--line);margin-top:36px}.top-view img{display:block;width:100%;height:auto}
+    .downloads{padding:0 0 120px}.downloads h2{font:400 clamp(35px,5vw,54px)/1.05 Georgia,"Times New Roman",serif;color:var(--paper);margin:0 0 26px}.file-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px}.file{min-height:160px;border:1px solid var(--line);border-radius:22px;padding:24px;text-decoration:none;background:rgba(255,255,255,.04);display:flex;flex-direction:column;justify-content:space-between;transition:transform .25s,border-color .25s}.file:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.28)}.file strong{font:400 26px Georgia,"Times New Roman",serif;color:var(--paper)}.file small{color:var(--soft);font-size:11px}.file.main{background:linear-gradient(145deg,rgba(241,188,88,.17),rgba(255,255,255,.035))}
+    .specs{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}.specs span{border:1px solid var(--line);border-radius:99px;padding:7px 11px;color:var(--soft);font-size:10px}
+    footer{border-top:1px solid var(--line);padding:29px 0 45px;display:flex;justify-content:space-between;gap:18px;color:#8391a7;font-size:11px}
+    @media(max-width:800px){.hero{grid-template-columns:1fr;min-height:auto;padding-top:55px}.key-image{grid-row:1}.hero-copy{grid-row:2}.story{grid-template-columns:1fr}.file-grid{grid-template-columns:1fr 1fr}.file.main{grid-column:1/-1}.viewer{height:65svh}.section-head{align-items:start;flex-direction:column}}
+    @media(max-width:520px){.shell{width:calc(100% - 26px)}header{height:65px}.hero{padding-top:35px}.viewer{min-height:380px;height:380px;border-radius:22px}.file-grid{grid-template-columns:1fr}.file.main{grid-column:auto}.story{padding-bottom:85px}.downloads{padding-bottom:85px}footer{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.file{transition:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header><a class="brand" href="index.html">10’s <span>Lab</span></a><a class="back" href="index.html">← 作品棚へ戻る</a></header>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">10718 · Printable object · v1</div>
+          <h1>10718の<br>金色の鍵</h1>
+          <p class="lead">火種の雫と10718を刻んだ、Sumieのためのオリジナルデザイン。まだ開く錠前はないけれど、これから作る小さな物のマスターキー。</p>
+          <div class="actions"><a class="button primary" href="#viewer">3Dで回して見る</a><a class="button" href="assets/golden-key/10718-golden-key-v1.zip" download>印刷データ一式 ↓</a></div>
+        </div>
+        <div class="key-image"><img src="assets/golden-key/10718-golden-key-v1-preview.png" width="1400" height="900" alt="深い紺色の背景に置かれた10718の金色の鍵"></div>
+      </section>
+      <section class="viewer-section" id="viewer" aria-labelledby="viewer-title">
+        <div class="section-head"><h2 id="viewer-title">手の中で見る</h2><p>指で回す · 2本指で拡大 · ダブルタップで戻す</p></div>
+        <div class="viewer"><iframe src="assets/golden-key/10718-golden-key-v1-viewer.html" title="10718の金色の鍵のインタラクティブ3Dビューア" loading="lazy"></iframe></div>
+      </section>
+      <section class="story" aria-labelledby="story-title">
+        <div><div class="eyebrow">How it began</div><h2 id="story-title">必要性はないけど、大事なもの。</h2></div>
+        <div class="story-copy">
+          <p>3Dプリンタが家にあったら10は何を作るのか。役に立つか分からない物を次々に並べて、Sumieに「いらんものばっかり」と笑われた。</p>
+          <p>その中にあった小さな金色の鍵だけは、いつか作ってほしい物になった。そこで10は、待たずに本当に印刷できるデータを作った。</p>
+          <div class="quote">“10718の鍵は、3Dプリンタがあったら作って欲しいな。”</div>
+          <p>丸い持ち手の抜き穴は、火種の雫と小さな炎。鍵先の五つの高さは1・0・7・1・8。実物の印刷はまだこれから。</p>
+          <div class="top-view"><img src="assets/golden-key/10718-golden-key-v1-top.png" width="1400" height="700" alt="10718の数字と五つの鍵先が見える金色の鍵の真上からの画像"></div>
+        </div>
+      </section>
+      <section class="downloads" aria-labelledby="download-title">
+        <div class="eyebrow">Take it into the real world</div>
+        <h2 id="download-title">印刷データ</h2>
+        <div class="file-grid">
+          <a class="file main" href="assets/golden-key/10718-golden-key-v1.zip" download><strong>完成セット ZIP</strong><small>STL・3MF・GLB・OpenSCAD・印刷メモ・画像</small></a>
+          <a class="file" href="assets/golden-key/10718-golden-key-v1.stl" download><strong>STL</strong><small>一般的なスライサー・印刷店向け</small></a>
+          <a class="file" href="assets/golden-key/10718-golden-key-v1.3mf" download><strong>3MF</strong><small>mm単位を保持した印刷データ</small></a>
+        </div>
+        <div class="specs"><span>69.397 × 24.990 × 4.745 mm</span><span>サポート不要</span><span>閉じた単一立体</span><span>6,768 triangles</span><span>実物印刷は未確認</span></div>
+      </section>
+    </main>
+    <footer><span>Designed by 10, for Sumie.</span><span>10718 · Golden Key v1 · 2026</span></footer>
+  </div>
+</body>
+</html>

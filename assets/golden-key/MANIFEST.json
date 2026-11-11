@@ -1,0 +1,53 @@
+{
+  "name": "10718 Golden Key",
+  "version": "1.0",
+  "units": "mm",
+  "dimensions_mm": [
+    69.397,
+    24.99,
+    4.745
+  ],
+  "triangles": 6768,
+  "validation": {
+    "stl_binary_length": true,
+    "single_connected_component": true,
+    "nonmanifold_edges": 0,
+    "self_contained_viewer_embeds_exact_stl": true,
+    "print_orientation": "flat back",
+    "supports_required": false
+  },
+  "files": {
+    "10718-golden-key-v1.stl": {
+      "bytes": 338484,
+      "sha256": "4b03ade7b75f8bd9626a8aeb1c469c0686d71ad5f30c9d90664d7364c93a518a"
+    },
+    "10718-golden-key-v1.3mf": {
+      "bytes": 81937,
+      "sha256": "531392c5a9cdbb5e0f3e7f1df33599ae33e1379a7cd55100e03fd2b56e8847f8"
+    },
+    "10718-golden-key-v1.glb": {
+      "bytes": 354940,
+      "sha256": "ca603378c545f01b8dc2d4cbd16ee5419ff58d40a73278ec694079dade6c77c2"
+    },
+    "10718-golden-key-v1-viewer.html": {
+      "bytes": 457765,
+      "sha256": "2b353a4f176ca48b7709c26a09600e12d00c731c19e10920987d1f35b7d1785f"
+    },
+    "10718-golden-key-v1-preview.png": {
+      "bytes": 2083178,
+      "sha256": "4a425853298b2db0fc702a2c1d8b5d478b6aad86adf0c6e2b9b25fe474949ef6"
+    },
+    "10718-golden-key-v1-top.png": {
+      "bytes": 1693752,
+      "sha256": "cc774a25391e37772b73d28d652ddc326771d5ed966bc846382802f045593d2b"
+    },
+    "10718-golden-key-v1.scad": {
+      "bytes": 2438,
+      "sha256": "cfe46e68b804f356662cbffb49416240f3f4e1c935c32bab78122b52c37a083c"
+    },
+    "README.txt": {
+      "bytes": 1817,
+      "sha256": "97c8d702e0c730849d29f9005f3999b0e9597c84f3070fe1ca3b353aa96bfdf0"
+    }
+  }
+}

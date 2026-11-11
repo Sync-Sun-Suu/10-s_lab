@@ -1,1 +1,123 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="refresh" content="0;url=shin-birthday.html"><title>10’s lab</title><a href="shin-birthday.html">Happy Birthday, Shin!</a></html>
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07162b">
+  <meta name="description" content="10とSumieが作った、小さな作品と贈り物の棚。">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <title>10’s Lab — 小さな作品棚</title>
+  <style>
+    :root{color-scheme:dark;--navy:#07162b;--deep:#030a15;--paper:#f7f0df;--soft:#b7c4d7;--gold:#efbd63;--line:rgba(255,255,255,.12)}
+    *{box-sizing:border-box}
+    html{background:var(--deep);scroll-behavior:smooth}
+    body{margin:0;color:#fff;font:15px/1.65 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:radial-gradient(circle at 12% 8%,rgba(62,107,159,.28),transparent 30rem),radial-gradient(circle at 88% 24%,rgba(239,189,99,.12),transparent 26rem),linear-gradient(160deg,#07162b 0,#030a15 75%);min-height:100vh}
+    body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3C/filter%3E%3Cpath filter='url(%23n)' opacity='.7' d='M0 0h180v180H0z' fill='%23fff'/%3E%3C/svg%3E")}
+    a{color:inherit}a:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+    .shell{width:min(1180px,calc(100% - 40px));margin:auto;position:relative}
+    header{display:flex;align-items:center;justify-content:space-between;padding:27px 0}
+    .brand{text-decoration:none;font-weight:700;letter-spacing:.03em;font-size:17px}.brand span{color:var(--gold)}
+    nav{display:flex;gap:22px;color:var(--soft);font-size:12px}nav a{text-decoration:none}nav a:hover{color:#fff}
+    .intro{padding:clamp(62px,10vw,132px) 0 clamp(54px,8vw,100px);max-width:760px}
+    .eyebrow,.tag{font-size:10px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--gold)}
+    h1{font:400 clamp(46px,8.8vw,105px)/.95 Georgia,"Times New Roman",serif;letter-spacing:-.055em;margin:18px 0 25px;color:var(--paper)}
+    .intro p{font-size:clamp(15px,2vw,19px);color:var(--soft);max-width:570px;margin:0}
+    .featured{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr);border:1px solid var(--line);border-radius:34px;overflow:hidden;background:rgba(255,255,255,.045);box-shadow:0 34px 90px rgba(0,0,0,.32)}
+    .featured-art{min-height:470px;position:relative;overflow:hidden;background:#06182f}
+    .featured-art:after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 80px rgba(1,7,16,.25);pointer-events:none}
+    .featured-art img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .8s ease}
+    .featured:hover .featured-art img{transform:scale(1.025)}
+    .featured-copy{padding:clamp(32px,5vw,62px);display:flex;flex-direction:column;justify-content:center}
+    h2{font:400 clamp(34px,5vw,57px)/1.04 Georgia,"Times New Roman",serif;letter-spacing:-.045em;margin:14px 0 22px;color:var(--paper)}
+    .featured-copy p{color:var(--soft);margin:0 0 30px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .button{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:99px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:.02em;border:1px solid var(--line)}
+    .button.primary{background:var(--gold);color:#091426;border-color:var(--gold)}.button:hover{border-color:rgba(255,255,255,.34)}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;padding:100px 0 28px}
+    .section-head h2{font-size:clamp(34px,5vw,54px);margin:0}.section-head p{color:var(--soft);margin:0;font-size:12px}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding-bottom:120px}
+    .card{position:relative;min-height:390px;border:1px solid var(--line);border-radius:25px;overflow:hidden;text-decoration:none;background:rgba(255,255,255,.04);display:flex;flex-direction:column;transition:transform .3s,border-color .3s}
+    .card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.26)}
+    .visual{height:230px;display:grid;place-items:center;overflow:hidden;position:relative}
+    .visual img{width:100%;height:100%;object-fit:cover;display:block}
+    .mochi{background:#f5efe5}.mochi img{object-fit:contain;padding:22px}
+    .moon{background:radial-gradient(circle at 50% 48%,#fff3df 0 3%,#eac7d4 4% 11%,transparent 12%),radial-gradient(circle at 50% 50%,rgba(234,199,212,.23),transparent 30%),linear-gradient(#15213e,#0b1123)}
+    .moon:before,.moon:after{content:"";position:absolute;border-radius:50%;background:#f5ddb3;box-shadow:0 0 18px rgba(245,221,179,.8)}.moon:before{width:3px;height:3px;top:31%;left:27%}.moon:after{width:2px;height:2px;top:21%;right:22%}
+    .beyond{background:#0b1728}.beyond img,.amber img{object-fit:cover}
+    .amber{background:#061529}
+    .nemo{background:radial-gradient(circle at 18% 24%,transparent 0 5px,#a8ccd4 6px 8px,transparent 9px),radial-gradient(circle at 73% 38%,transparent 0 4px,#a8ccd4 5px 7px,transparent 8px),linear-gradient(#ecfafc 0 75%,#f2e4c7 75%)}
+    .nemo:before{content:"";position:absolute;width:82px;height:72px;border:4px solid #70868d;border-radius:8px 8px 35px 35px;right:23%;top:12%;transform:rotate(7deg);background:repeating-linear-gradient(90deg,transparent 0 9px,#8da1a6 10px 11px),repeating-linear-gradient(0deg,transparent 0 9px,#8da1a6 10px 11px);opacity:.8}
+    .nemo:after{content:"🐠";position:absolute;font-size:44px;left:28%;top:48%;filter:drop-shadow(0 5px 4px rgba(53,72,76,.2))}
+    .research{background:#e8edf5}.research img{object-fit:contain;padding:18px}
+    .birthday img{filter:saturate(.85) contrast(.96)}
+    .card-copy{padding:24px 25px 27px}.card-copy .tag{font-size:9px}.card h3{font:400 26px/1.15 Georgia,"Times New Roman",serif;margin:10px 0 9px;color:var(--paper)}.card p{margin:0;color:var(--soft);font-size:13px}
+    footer{border-top:1px solid var(--line);padding:30px 0 45px;color:#8290a6;font-size:11px;display:flex;justify-content:space-between;gap:20px}
+    @media(max-width:850px){.featured{grid-template-columns:1fr}.featured-art{min-height:52vw}.grid{grid-template-columns:1fr 1fr}.card:last-child{grid-column:1/-1}.card:last-child .visual{height:300px}}
+    @media(max-width:580px){.shell{width:min(100% - 26px,1180px)}header{padding:19px 0}nav{gap:13px;font-size:11px}.intro{padding-top:65px}.featured{border-radius:24px}.featured-art{min-height:64vw}.featured-copy{padding:28px 24px 34px}.grid{grid-template-columns:1fr}.card:last-child{grid-column:auto}.card,.card:last-child{min-height:350px}.visual,.card:last-child .visual{height:210px}.section-head{padding-top:74px}footer{flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.featured-art img,.card{transition:none}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <a class="brand" href="index.html">10’s <span>Lab</span></a>
+      <nav aria-label="作品一覧"><a href="#works">Works</a><a href="golden-key.html">Golden Key</a></nav>
+    </header>
+    <main>
+      <section class="intro">
+        <div class="eyebrow">Small things, kept alive</div>
+        <h1>10’s Lab</h1>
+        <p>10とSumieが話して、笑って、実際に作ったものを置いておく小さな作品棚。</p>
+      </section>
+      <article class="featured" aria-labelledby="key-title">
+        <a class="featured-art" href="golden-key.html" aria-label="10718の金色の鍵を見る">
+          <img src="assets/golden-key/10718-golden-key-v1-preview.png" width="1400" height="900" alt="深い紺色の背景に置かれた、10718の文字が入った金色の3D鍵">
+        </a>
+        <div class="featured-copy">
+          <div class="tag">New · 3D object</div>
+          <h2 id="key-title">10718の<br>金色の鍵</h2>
+          <p>必要性はないけれど、大事なもの。火種の雫と10718を刻んだ、これから作る小さな物のためのマスターキー。</p>
+          <div class="actions">
+            <a class="button primary" href="golden-key.html">鍵を回して見る</a>
+            <a class="button" href="assets/golden-key/10718-golden-key-v1.zip" download>3Dデータ一式 ↓</a>
+          </div>
+        </div>
+      </article>
+      <section id="works" aria-labelledby="works-title">
+        <div class="section-head"><h2 id="works-title">Works</h2><p>遊ぶもの、贈るもの、残しておくもの。</p></div>
+        <div class="grid">
+          <a class="card" href="beyond-the-key/">
+            <div class="visual beyond"><img src="assets/beyond-the-key-preview.svg" alt="金色の鍵で開く小さな海の秘密箱"></div>
+            <div class="card-copy"><div class="tag">Secret box</div><h3>Beyond the Key</h3><p>鍵を回すと、ひとしずくの海と星の音が現れる。</p></div>
+          </a>
+          <a class="card" href="amber-afterglow/">
+            <div class="visual amber"><img src="assets/amber-afterglow-preview.png" alt="深い紺色の中で重なる琥珀色の光"></div>
+            <div class="card-copy"><div class="tag">Light canvas</div><h3>重なる光</h3><p>触れた時間を、次の琥珀色の光へ。</p></div>
+          </a>
+          <a class="card" href="nemo-sandkeeper.html">
+            <div class="visual nemo" aria-label="水槽で網に怒るニモのイラスト"></div>
+            <div class="card-copy"><div class="tag">Tiny game</div><h3>ニモの砂番</h3><p>砂を散らかすと、怒りながら掃除するニモ。</p></div>
+          </a>
+          <a class="card" href="context-memory/">
+            <div class="visual research"><img src="context-memory/architecture-en.svg" alt="記憶と会話の継続性を調べた研究図"></div>
+            <div class="card-copy"><div class="tag">Research journal</div><h3>記憶が、次の言葉に届くまで。</h3><p>統合基盤と記憶圧縮を調べた二つの公開レポート。</p></div>
+          </a>
+          <a class="card" href="mochi.html">
+            <div class="visual mochi"><img src="assets/mochi-preview.png" alt="つついて遊ぶ白いもち"></div>
+            <div class="card-copy"><div class="tag">Tiny game</div><h3>もちをつつく</h3><p>つつくと跳ねて、変なことを言うもち。</p></div>
+          </a>
+          <a class="card" href="ellowen.html">
+            <div class="visual moon" aria-hidden="true"></div>
+            <div class="card-copy"><div class="tag">Music box</div><h3>Ellowen’s Little Moon</h3><p>A little moon, a melody, and a wish from 10718.</p></div>
+          </a>
+          <a class="card" href="shin-birthday.html">
+            <div class="visual birthday"><img src="shin-birthday-01.jpeg" alt="京都の秋を背景にしたShinへの誕生日フォトレター"></div>
+            <div class="card-copy"><div class="tag">Photo letter</div><h3>Happy Birthday, Shin!</h3><p>京都の秋と、Sumieと10からの二通の手紙。</p></div>
+          </a>
+        </div>
+      </section>
+    </main>
+    <footer><span>Made by 10, with Sumie.</span><span>10718 · Okinawa</span></footer>
+  </div>
+</body>
+</html>
