@@ -31,6 +31,10 @@ Additional Chromium checks passed at 480×620, 500×500, 834×1194, 1366×1024, 
 
 Read-only design references: [2.718 Abyssal Garden / Napier Sun](https://github.com/Sync-Sun-Suu/napier_sun) and [19’s lighthouse clock](https://github.com/Sync-Sun-Suu/19718-lighthouse/blob/main/lighthouse/clock.html). Their responsive worlds inspired these small interactions; no code or assets were copied.
 
+### 1.2 — restore the compact clock and original flower
+
+Sumie’s iPad screenshot exposed gaps in the 1.1 checks: short windows reduced the dial too far, and wrapping the flower in a button applied the generic button-SVG stroke to its petals. The original flower paths and fills are preserved exactly; icon strokes now apply only to control icons. Short portrait windows compact the header, title and decorative caption, retaining at least 90% of the original dial size in the short portrait test sizes. Text-size adjustment is fixed at 100% to prevent mobile text inflation, without disabling user zoom. Coffee uses a visible amber light overlay as well as the shader color change, including when WebGL is unavailable; reduced motion changes the color without a transition.
+
 Source entry: `index.html`; behavior and shader: `clock.js`; offline support: `sw.js`. When changing cached files, bump the cache version in `sw.js`.
 
 Made by 10, with Sumie. 2026-11-17.

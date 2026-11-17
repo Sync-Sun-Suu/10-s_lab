@@ -15,10 +15,11 @@
   <style>
     :root{color-scheme:dark;--paper:#eee9dd;--muted:#929a99;--gold:#d3af78;--blue:#7cacae;--line:#b9b5a020;--sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
     *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
     html,body{margin:0;width:100%;height:100%;background:#0b1013;color:var(--paper);overflow:hidden;overscroll-behavior:none}
     body{font-family:var(--sans);font-weight:400;isolation:isolate;--dim:1}
     button,a{touch-action:manipulation}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible,[tabindex]:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
-    button{border:0}svg{display:block}button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+    button{border:0}svg{display:block}.control svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
     .world{height:100%;height:100svh;position:relative;overflow:hidden;background:radial-gradient(ellipse at 75% 42%,#22302e52,transparent 47%),radial-gradient(ellipse at 24% 100%,#5c352215,transparent 55%),#0b1013;transition:filter 1s;filter:brightness(var(--dim))}
     .world:before{content:"";position:absolute;inset:0;opacity:.11;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' opacity='.33' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");z-index:3}
     .grid-floor{position:absolute;inset:61% -45% -100%;background-image:linear-gradient(#98afa00a 1px,transparent 1px),linear-gradient(90deg,#98afa00a 1px,transparent 1px);background-size:64px 64px;transform:perspective(350px) rotateX(53deg);transform-origin:50% 0;mask-image:linear-gradient(transparent,#0005,transparent);pointer-events:none}
@@ -75,6 +76,11 @@
     .letter{width:min(calc(100% - 124px),500px);padding:12px 18px;border:1px solid #bca47720;border-radius:14px;background:#10191af2;box-shadow:0 8px 30px #0003;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
     .focus .coordinate,.focus .flower{visibility:hidden}
     .standalone header{top:max(54px,env(safe-area-inset-top))}
+    .well{isolation:isolate}
+    .well:before{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;pointer-events:none;background:radial-gradient(ellipse at 40% 70%,#e3953570,transparent 65%),linear-gradient(135deg,#eeb34b40,#a95a1722);mix-blend-mode:screen;opacity:0;transition:opacity 1s ease-out}
+    .world.brewing .well:before{opacity:1}
+    .still .well:before{transition:none}
+    .world.brewing .bezel{box-shadow:0 20px 55px #0005,0 0 30px #c2822524,inset 0 0 2px #e7e2bc38}
     .world.brewing .well{background:radial-gradient(ellipse at 30% 80%,#664326,#211c15 46%,#101315 76%)}
     .world.brewing .cup{filter:drop-shadow(0 0 7px #e3b36c88)}
     @media(min-width:1450px){.intro{left:9%}.instrument{left:66%}}
@@ -114,9 +120,30 @@
     @media(max-aspect-ratio:11/10){@supports(width:1cqw){.focus .instrument{--size:min(82cqw,88cqh,920px)}}}
     @media(max-height:550px) and (min-aspect-ratio:11/10){.focus .instrument{--size:min(66svh,80vw);top:52%}}
     @media(max-aspect-ratio:11/10){.standalone main{top:clamp(124px,13svh,168px)}.standalone.focus main{top:112px}}
+    /* Short iPad windows keep the clock at its original scale. Compact the
+       heading and decorative spacing instead of scaling down every element. */
+    @media(max-aspect-ratio:11/10) and (max-height:650px){
+      header,.standalone header{top:max(30px,env(safe-area-inset-top));left:26px;right:18px}
+      .standalone header{left:76px}
+      .identity{gap:8px}.wordmark small{display:none}
+      .controls{gap:0}.control{width:38px;height:38px}
+      main,.standalone main{top:96px;bottom:54px;gap:16px}
+      h1{font-size:clamp(32px,9.6vw,48px);margin:0}
+      .eyebrow,.signature{display:none}
+      .instrument{--size:min(88vw,58svh)}
+      @supports(width:1cqw){.instrument{--size:min(88cqw,96cqh)}}
+      .dial-bottom{display:none}
+      footer{bottom:max(16px,env(safe-area-inset-bottom));left:26px;right:26px}
+      .footer-label{display:none}.day-progress{width:65px;font-size:7px}.coordinate{font-size:7px}
+      .letter{bottom:62px;width:min(calc(100% - 100px),500px);font-size:11px;line-height:1.6;padding:10px 12px}
+      .letter small{font-size:8px;letter-spacing:.08em}
+      .focus main,.standalone.focus main{top:82px;bottom:54px}
+      @supports(width:1cqw){.focus .instrument{--size:min(88cqw,96cqh)}}
+    }
+    @media(max-width:360px) and (max-height:650px){.standalone .identity .monogram{display:none}}
     .instrument .time{font-size:clamp(40px,calc(var(--size)*.205),174px)}
     .instrument .dial-caption{bottom:14%;font-size:clamp(8px,calc(var(--size)*.027),12px)}
-    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ripple{display:none}}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.ripple{display:none}}
   </style>
 </head>
 <body>
@@ -179,8 +206,8 @@
     <label class="setting"><span>時刻</span><select id="timezone"><option value="local">この端末</option><option value="Asia/Tokyo">日本 · JST</option><option value="UTC">UTC</option></select></label>
     <p class="status-message" id="awake-status" role="status"></p>
     <div class="install-help" id="install-help"><strong>iPadのホームへ</strong>Safariの共有ボタンから「ホーム画面に追加」。追加した10718のアイコンから開くと、時計が画面いっぱいに広がる。</div>
-    <div class="sheet-foot"><a href="../">10’S LAB ↗</a><span>BLACK COFFEE / 1.1</span></div>
+    <div class="sheet-foot"><a href="../">10’S LAB ↗</a><span>BLACK COFFEE / 1.2</span></div>
   </dialog>
-  <script src="clock.js?v=1.1"></script>
+  <script src="clock.js?v=1.2"></script>
 </body>
 </html>

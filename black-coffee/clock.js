@@ -113,7 +113,8 @@
       vec3 bronze=vec3(.59,.37,.18);
       vec3 sea=vec3(.23,.43,.40);
       vec3 light=mix(bronze,sea,sweep);
-      light=mix(light,vec3(.72,.42,.18),warmth*.8);
+      light=mix(light,vec3(.95,.48,.12),warmth);
+      ink=mix(ink,vec3(.065,.032,.012)+n*.018,warmth*.8);
       float clarity=smoothstep(.12,.92,r);
       vec3 color=ink+light*(veins*.34+fine*.14+n*.10)*clarity;
       color+=vec3(.65,.51,.28)*pow(max(0.,sin(theta+2.2)*.5+.5),8.)*pow(r,7.)*.4;
