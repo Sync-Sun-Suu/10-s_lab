@@ -31,12 +31,14 @@ with sync_playwright() as p:
         page.screenshot(path=str(out/f'{name}-{label}.png'))
         results[label]=d();print(name,label,'rendered',flush=True)
     assert d()['lighting']=='day' and d()['glowingFish']==0 and d()['stars']==0
+    assert not d()['spectral'] and d()['reefDepthWrites'] and d()['bubbles']==0
     capture('day-phone')
     page.locator('#light').click();page.wait_for_function('oceanDiagnostics().moon>.99',timeout=90000)
     assert d()['lighting']=='moon' and d()['glowingFish']==0
     capture('moon-phone')
     page.locator('#light').click();page.wait_for_function('oceanDiagnostics().cosmos>.99',timeout=90000)
     assert d()['lighting']=='cosmos' and d()['glowingFish']==156 and d()['stars']==1400,d()
+    assert d()['spectral'] and d()['spectralMeshes']>=10 and not d()['reefDepthWrites'] and d()['bubbles']==96,d()
     assert page.locator('#light-mode').input_value()=='cosmos'
     assert 'Cosmos' in page.locator('#light').get_attribute('aria-label')
     capture('cosmos-phone')
@@ -66,7 +68,7 @@ with sync_playwright() as p:
     info.value.save_as(str(out/f'{name}-cosmos-photo.png'))
     assert (out/f'{name}-cosmos-photo.png').stat().st_size>5000
     page.locator('#quality').select_option('low')
-    page.wait_for_function('oceanDiagnostics().glowingFish===92 && oceanDiagnostics().stars===600')
+    page.wait_for_function('oceanDiagnostics().glowingFish===92 && oceanDiagnostics().stars===600 && oceanDiagnostics().bubbles===40')
     page.locator('#pause').click();page.keyboard.press('Escape')
     page.wait_for_function('oceanDiagnostics().time>.2',timeout=90000)
     page.locator('#feed').click();assert d()['feeding']>10
@@ -82,6 +84,7 @@ with sync_playwright() as p:
     page.keyboard.press('Escape');page.locator('#light').click()
     page.wait_for_function('oceanDiagnostics().cosmos<.0001 && oceanDiagnostics().moon<.0001',timeout=90000)
     assert d()['lighting']=='day' and d()['glowingFish']==0 and d()['stars']==0
+    assert not d()['spectral'] and d()['reefDepthWrites'] and d()['bubbles']==0,d()
     assert d()['geometryCount']==geometries,d()
     page.locator('#drift').click();page.wait_for_function('oceanDiagnostics().transition===0',timeout=90000)
     for w,h in [(375,453),(844,390),(430,932)]:
