@@ -14,13 +14,14 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="cosmic-sky" aria-hidden="true"></div>
   <canvas id="ocean" aria-label="魚とエイが泳ぐ立体の水槽。ドラッグで視点を動かす。" tabindex="0"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <header>
     <a class="brand" href="../" aria-label="10’s Labへ"><span class="monogram">10</span><span>10718<small>A LITTLE WORLD, TOGETHER</small></span></a>
     <nav aria-label="設定">
       <button class="icon" id="sound" aria-label="水の音をオン" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM16 9l5 6m0-6-5 6"/></svg></button>
-      <button class="icon" id="light" aria-label="月の水槽へ" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button>
+      <button class="icon" id="light" aria-label="Day。次はMoon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button>
       <button class="icon" id="settings" aria-label="設定を開く" aria-expanded="false" aria-controls="settings-panel"><svg viewBox="0 0 24 24"><path d="M3 7h4m5 0h9M3 17h10m5 0h3"/><circle cx="9.5" cy="7" r="2.5"/><circle cx="15.5" cy="17" r="2.5"/></svg></button>
     </nav>
   </header>
@@ -31,6 +32,7 @@
   <section id="failure" class="panel failure" hidden><h2>One more breath.</h2><p id="failure-text">水槽を開けなかったみたい。もう一度読み込んでね。</p><button id="reload">Reload ↻</button><a href="../">10’s Lab</a></section>
   <aside class="panel" id="settings-panel" hidden aria-label="水槽の設定">
     <div class="panel-head"><h2>At your pace.</h2><button class="icon" id="close-settings" aria-label="設定を閉じる">×</button></div>
+    <label class="row" for="light-mode">Light<select id="light-mode"><option value="day">Day</option><option value="moon">Moon</option><option value="cosmos">Cosmos</option></select></label>
     <label class="row" for="quality">Detail<select id="quality"><option value="low">Gentle</option><option value="medium" selected>Balanced</option><option value="high">Fine</option></select></label>
     <div class="row"><span>Movement</span><button id="pause" aria-pressed="false">Pause Ⅱ</button></div>
     <div class="row"><span>Keep this view</span><button id="photo">Photo ↓</button></div>

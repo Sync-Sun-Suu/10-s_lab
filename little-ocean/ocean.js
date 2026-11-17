@@ -5,8 +5,8 @@ import * as THREE from './vendor/three.module.min.js';
 const $ = id => document.getElementById(id);
 const canvas = $('ocean');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const state = {time:0, mode:'drift', paused:reduced, night:false, quality:'medium', feeding:0, sound:false, ready:false};
-const clock = {value:0}, moon = {value:0};
+const state = {time:0, mode:'drift', paused:reduced, lighting:'day', night:false, quality:'medium', feeding:0, sound:false, ready:false};
+const clock = {value:0}, moon = {value:0}, cosmos = {value:0};
 const rand = (() => {let n=10718;return () => {n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};})();
 const range = (a,b) => a+(b-a)*rand();
 const clamp = THREE.MathUtils.clamp;
@@ -61,10 +61,10 @@ const causticGLSL=`
     return pow(1.-abs(f),18.);
   }
 `;
-function material(color, {sway=0,fish=false,manta=false,roughness=.8}={}){
+function material(color, {sway=0,fish=false,manta=false,roughness=.8,starlight=0}={}){
   const m=new THREE.MeshStandardMaterial({color,roughness,metalness:.04,vertexColors:true,side:THREE.DoubleSide});
   m.onBeforeCompile=shader=>{
-    shader.uniforms.uTime=clock;shader.uniforms.uMoon=moon;
+    shader.uniforms.uTime=clock;shader.uniforms.uMoon=moon;shader.uniforms.uCosmos=cosmos;
     shader.vertexShader='uniform float uTime; varying vec3 vSea;\n'+shader.vertexShader;
     let deform='';
     if(sway)deform=`float root=pow(max(position.y,0.)/${sway>1?'5.8':'1.8'},1.6); transformed.x+=sin(uTime*.65+position.y*.8+instanceMatrix[3].x*.31+instanceMatrix[3].z*.27)*root*${sway}; transformed.z+=cos(uTime*.47+position.y+instanceMatrix[3].z*.4)*root*.23;`;
@@ -72,14 +72,17 @@ function material(color, {sway=0,fish=false,manta=false,roughness=.8}={}){
     if(manta)deform='float wing=abs(position.x)/2.5;transformed.y+=sin(uTime*1.55-wing*2.)*wing*wing*.8;';
     shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n'+deform);
     shader.vertexShader=shader.vertexShader.replace('#include <project_vertex>',`vec4 wp=vec4(transformed,1.);\n#ifdef USE_INSTANCING\nwp=instanceMatrix*wp;\n#endif\nvSea=(modelMatrix*wp).xyz;\n#include <project_vertex>`);
-    shader.fragmentShader='uniform float uTime;uniform float uMoon;varying vec3 vSea;\n'+causticGLSL+shader.fragmentShader;
+    shader.fragmentShader='uniform float uTime;uniform float uMoon;uniform float uCosmos;varying vec3 vSea;\n'+causticGLSL+shader.fragmentShader;
     shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>\nfloat caustic=waterLight(vSea,uTime);diffuseColor.rgb*=.82+max(0.,vSea.y)*.025; diffuseColor.rgb+=vec3(.32,.46,.37)*caustic*(1.-uMoon*.82)*.24;`);
+    // Emission belongs to the swimming mesh, so fins, eyes and silhouettes remain real.
+    const glow=fish?2.1:manta?.58:sway?.22:starlight;
+    if(glow)shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>',`#include <emissivemap_fragment>\nfloat skin=max(diffuseColor.r,max(diffuseColor.g,diffuseColor.b));vec3 starTint=mix(diffuseColor.rgb,vec3(.50,.65,1.)*skin,.34);float pulse=.88+.12*sin(uTime*.72+vSea.x*.23+vSea.z*.19);totalEmissiveRadiance+=starTint*uCosmos*${glow.toFixed(2)}*pulse;`);
   };
-  m.customProgramCacheKey=()=>`${sway}/${fish}/${manta}`;
+  m.customProgramCacheKey=()=>`${sway}/${fish}/${manta}/${starlight}`;
   return m;
 }
 const sandMat=material(0xd9cbb0),rockMat=material(0xffffff),plantMat=material(0xffffff,{sway:1.8}),grassMat=material(0xffffff,{sway:.42});
-const coralMat=material(0xffffff);
+const coralMat=material(0xffffff,{starlight:.32});
 const rockCompile=rockMat.onBeforeCompile;
 rockMat.onBeforeCompile=shader=>{rockCompile(shader);shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>\nfloat grain=fract(sin(dot(floor(vSea*38.),vec3(127.1,311.7,74.7)))*43758.5453);float mottle=sin(vSea.x*4.2+sin(vSea.z*3.))*sin(vSea.y*6.4+vSea.z*2.);diffuseColor.rgb*=.80+grain*.20+mottle*.13;`);};
 rockMat.customProgramCacheKey=()=> 'reef-limestone';
@@ -247,14 +250,14 @@ const manta=new THREE.Group(),wingMat=material(0xffffff,{manta:true,roughness:.5
 const oldCompile=wingMat.onBeforeCompile;wingMat.onBeforeCompile=shader=>{oldCompile(shader);shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\nif(!gl_FrontFacing)diffuseColor.rgb=vec3(.67,.75,.65);');};
 manta.add(new THREE.Mesh(mantaGeometry(),wingMat));
 const tailPath=new THREE.CatmullRomCurve3([new THREE.Vector3(0,0,.8),new THREE.Vector3(0,-.04,1.7),new THREE.Vector3(.1,-.12,2.7),new THREE.Vector3(.28,-.22,3.3)]);
-const tail=new THREE.Mesh(new THREE.TubeGeometry(tailPath,18,.025,5,false),material(0x456b70));manta.add(tail);
+const tail=new THREE.Mesh(new THREE.TubeGeometry(tailPath,18,.025,5,false),material(0x456b70,{starlight:.6}));manta.add(tail);
 for(let sign of [-1,1]){
   const horn=new THREE.Mesh(new THREE.CapsuleGeometry(.09,.4,3,6),material(0x729d9d));horn.rotation.x=Math.PI/2;horn.position.set(sign*.29,.03,-.85);manta.add(horn);
   const eye=new THREE.Mesh(new THREE.SphereGeometry(.045,8,6),new THREE.MeshBasicMaterial({color:0x142d36}));eye.position.set(sign*.4,.1,-.52);manta.add(eye);
 }reef.add(manta);
 
 // A little coffee cup waits on the sand, on the sheltered side of the arch.
-const cup=new THREE.Group(),cupMat=material(0xf0e7cb),goldMat=material(0xc9ac6f);
+const cup=new THREE.Group(),cupMat=material(0xf0e7cb,{starlight:.12}),goldMat=material(0xc9ac6f,{starlight:.7});
 const saucer=new THREE.Mesh(new THREE.CylinderGeometry(.39,.3,.055,32),cupMat);saucer.position.y=.035;cup.add(saucer);
 const bowl=new THREE.Mesh(new THREE.CylinderGeometry(.24,.16,.36,28,1,true),cupMat);bowl.position.y=.23;cup.add(bowl);
 const coffee=new THREE.Mesh(new THREE.CircleGeometry(.222,28),new THREE.MeshStandardMaterial({color:0x271d16,roughness:.18}));coffee.rotation.x=-Math.PI/2;coffee.position.y=.375;cup.add(coffee);
@@ -264,9 +267,9 @@ cup.position.set(-2.0,floorHeight(-2,2.3),2.3);cup.rotation.y=.3;reef.add(cup);
 
 // Surface reflections. Explicit bounded geometry avoids screen-aligned square artifacts.
 const surfaceMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,
-  uniforms:{uTime:clock,uMoon:moon},
+  uniforms:{uTime:clock,uMoon:moon,uCosmos:cosmos},
   vertexShader:`varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader:`uniform float uTime,uMoon;varying vec3 vP;${causticGLSL}void main(){float w=waterLight(vec3(vP.x,0.,vP.y),uTime);float edge=pow(max(abs(vP.x)/13.,abs(vP.y)/8.),12.);gl_FragColor=vec4(mix(vec3(.34,.69,.69),vec3(.2,.39,.55),uMoon)+w*.14,.025+w*.045+edge*.10);}`});
+  fragmentShader:`uniform float uTime,uMoon,uCosmos;varying vec3 vP;${causticGLSL}void main(){float w=waterLight(vec3(vP.x,0.,vP.y),uTime);float edge=pow(max(abs(vP.x)/13.,abs(vP.y)/8.),12.);gl_FragColor=vec4(mix(vec3(.34,.69,.69),vec3(.2,.39,.55),uMoon)+w*.14,(.025+w*.045+edge*.10)*(1.-uCosmos*.85));}`});
 const surface=new THREE.Mesh(new THREE.PlaneGeometry(26,16),surfaceMat);surface.rotation.x=-Math.PI/2;surface.position.y=10.6;glass.add(surface);
 const tankEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(26,10.4,16)),new THREE.LineBasicMaterial({color:0xa8d7d4,transparent:true,opacity:.18}));tankEdges.position.y=5.2;glass.add(tankEdges);
 const glassMat=new THREE.MeshBasicMaterial({color:0x9bddd7,transparent:true,opacity:.025,depthWrite:false,side:THREE.DoubleSide});
@@ -283,10 +286,55 @@ reef.add(new THREE.Points(particlesGeo,particlesMat));
 const shafts=new THREE.Group();reef.add(shafts);
 for(let i=0;i<7;i++){
   const h=10,w=range(.45,1.2),g=new THREE.PlaneGeometry(w,h);
-  const mat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{uTime:clock,uMoon:moon,uSeed:{value:i}},
+  const mat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,uniforms:{uTime:clock,uMoon:moon,uCosmos:cosmos,uSeed:{value:i}},
     vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-    fragmentShader:`varying vec2 vUv;uniform float uTime,uMoon,uSeed;void main(){float x=pow(sin(vUv.x*3.14159),2.);float y=smoothstep(0.,.35,vUv.y)*(1.-smoothstep(.87,1.,vUv.y));float a=x*y*.055*(.75+.25*sin(uTime*.2+uSeed));gl_FragColor=vec4(mix(vec3(.65,.84,.65),vec3(.25,.43,.8),uMoon),a);}`});
+    fragmentShader:`varying vec2 vUv;uniform float uTime,uMoon,uCosmos,uSeed;void main(){float x=pow(sin(vUv.x*3.14159),2.);float y=smoothstep(0.,.35,vUv.y)*(1.-smoothstep(.87,1.,vUv.y));float a=x*y*.055*(.75+.25*sin(uTime*.2+uSeed))*(1.-uCosmos);gl_FragColor=vec4(mix(vec3(.65,.84,.65),vec3(.25,.43,.8),uMoon),a);}`});
   const ray=new THREE.Mesh(g,mat);ray.position.set(-8+i*2.6,5.5,-3+range(-1,1));ray.rotation.z=-.19;shafts.add(ray);
+}
+
+// One point per fish: a soft, depth-tested halo follows its real position.
+// Fixed buffers and two extra draws keep Cosmos light enough for a phone.
+const starProjection={value:1},starPixelRatio={value:1};
+const glowPositions=new Float32Array(FISH_COUNT*3),glowSeeds=[],glowSizes=[],glowColors=[];
+const stellarPalette=[0x9fdfff,0xffdbb0,0xc8baff,0xabede4];
+for(let i=0;i<FISH_COUNT;i++){
+  const f=fishes[i],c=new THREE.Color(stellarPalette[f.school]);
+  glowSeeds.push(f.phase);glowSizes.push(f.scale);glowColors.push(c.r,c.g,c.b);
+}
+const glowGeo=new THREE.BufferGeometry();
+glowGeo.setAttribute('position',new THREE.BufferAttribute(glowPositions,3).setUsage(THREE.DynamicDrawUsage));
+glowGeo.setAttribute('aSeed',new THREE.Float32BufferAttribute(glowSeeds,1));
+glowGeo.setAttribute('aSize',new THREE.Float32BufferAttribute(glowSizes,1));
+glowGeo.setAttribute('color',new THREE.Float32BufferAttribute(glowColors,3));
+const glowMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending,vertexColors:true,
+  uniforms:{uTime:clock,uCosmos:cosmos,uProjection:starProjection},
+  vertexShader:`uniform float uProjection;attribute float aSeed,aSize;varying vec3 vColor;varying float vSeed;void main(){vColor=color;vSeed=aSeed;vec4 mv=modelViewMatrix*vec4(position,1.);mv.z+=aSize*.24;gl_Position=projectionMatrix*mv;gl_PointSize=clamp(aSize*2.8*uProjection/max(.1,-mv.z),4.,64.);}`,
+  fragmentShader:`uniform float uTime,uCosmos;varying vec3 vColor;varying float vSeed;void main(){vec2 p=(gl_PointCoord-.5)*2.;float r=length(p);float edge=1.-smoothstep(.72,1.,r);float halo=exp(-r*r*6.)*.20;float core=exp(-r*r*90.)*.65;float ray=(exp(-abs(p.x)*65.)*exp(-abs(p.y)*7.)+exp(-abs(p.y)*65.)*exp(-abs(p.x)*7.))*.16;float pulse=.82+.18*sin(uTime*.8+vSeed);gl_FragColor=vec4(vColor,(halo+core+ray)*edge*pulse*uCosmos);}`});
+const fishGlow=new THREE.Points(glowGeo,glowMat);fishGlow.frustumCulled=false;fishGlow.visible=false;scene.add(fishGlow);
+
+// A seeded sky around the viewer; changing light never respawns the living reef.
+let skySeed=718107;
+const skyRandom=()=>{skySeed=(Math.imul(skySeed,1664525)+1013904223)>>>0;return skySeed/4294967296;};
+const skyPos=[],skySeeds=[];
+for(let i=0;i<1400;i++){
+  const y=skyRandom()*2-1,a=skyRandom()*Math.PI*2,r=70+skyRandom()*30,s=Math.sqrt(1-y*y);
+  skyPos.push(Math.cos(a)*s*r,y*r,Math.sin(a)*s*r);skySeeds.push(skyRandom());
+}
+const skyGeo=new THREE.BufferGeometry();skyGeo.setAttribute('position',new THREE.Float32BufferAttribute(skyPos,3));skyGeo.setAttribute('aSeed',new THREE.Float32BufferAttribute(skySeeds,1));
+const skyMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending,
+  uniforms:{uTime:clock,uCosmos:cosmos,uPixelRatio:starPixelRatio},
+  vertexShader:`uniform float uPixelRatio;attribute float aSeed;varying float vSeed;void main(){vSeed=aSeed;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=(1.+pow(aSeed,5.)*2.8)*uPixelRatio;}`,
+  fragmentShader:`uniform float uTime,uCosmos;varying float vSeed;void main(){float r=length(gl_PointCoord-.5)*2.;float a=1.-smoothstep(.1,1.,r);vec3 c=mix(vec3(.52,.65,1.),vec3(1.,.84,.67),vSeed);float pulse=.65+.18*sin(uTime*.5+vSeed*70.);gl_FragColor=vec4(c,a*(.25+vSeed*.5)*pulse*uCosmos);}`});
+const starSky=new THREE.Points(skyGeo,skyMat);starSky.frustumCulled=false;starSky.visible=false;scene.add(starSky);
+const fogDay=new THREE.Color(0x205664),fogMoon=new THREE.Color(0x143445),fogCosmos=new THREE.Color(0x080d24);
+function updateCosmos(){
+  const active=cosmos.value>.001;fishGlow.visible=starSky.visible=active;
+  if(!active)return;
+  starProjection.value=canvas.height/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));
+  starPixelRatio.value=renderer.getPixelRatio();starSky.position.copy(camera.position);
+  glowGeo.setDrawRange(0,fishMesh.count);
+  for(let i=0;i<fishMesh.count;i++)fishes[i].p.toArray(glowPositions,i*3);
+  glowGeo.attributes.position.needsUpdate=true;
 }
 
 // Outside orbit and inside swimming share one persistent scene.
@@ -336,7 +384,7 @@ function updateCamera(dt){
   // Framing pulls the outside camera back on narrow screens. That extra air
   // must not make the water opaque. Keep its optical depth tied to the reef.
   const distance=camera.position.distanceTo(orbitTarget);
-  scene.fog.density=state.mode==='swim'?.048:.012*Math.min(1,40/distance);
+  scene.fog.density=(state.mode==='swim'?.048:.012*Math.min(1,40/distance))*(1.-cosmos.value*.4);
   transition=Math.max(0,transition-dt);
 }
 orbitPosition();camera.position.copy(desired);camera.lookAt(orbitTarget);
@@ -412,11 +460,25 @@ async function ensureAudio(){
 }
 function chime(){if(!state.sound||!audio)return;for(let i=0;i<2;i++){const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.19;o.type='sine';o.frequency.value=[659.25,987.77][i];g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.025,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+1.7);o.connect(g);g.connect(audioGain);o.start(t);o.stop(t+1.8);}}
 $('sound').onclick=async()=>{try{await ensureAudio();state.sound=!state.sound;audioGain.gain.setTargetAtTime(state.sound?.28:0,audio.currentTime,.7);$('sound').setAttribute('aria-pressed',String(state.sound));$('sound').setAttribute('aria-label',state.sound?'水の音をオフ':'水の音をオン');$('sound').innerHTML=state.sound?'<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM16 8q5 4 0 8m3-11q8 7 0 14"/></svg>':'<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM16 9l5 6m0-6-5 6"/></svg>';if(state.sound)chime();}catch{toast('このブラウザでは音を開けなかったみたい。');}};
-$('light').onclick=()=>{state.night=!state.night;document.body.classList.toggle('night',state.night);$('light').setAttribute('aria-pressed',String(state.night));$('light').setAttribute('aria-label',state.night?'昼の水槽へ':'月の水槽へ');};
+const lightModes=['day','moon','cosmos'];
+const lightNames={day:'Day',moon:'Moon',cosmos:'Cosmos'};
+const lightIcons={day:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',moon:'<path d="M19.5 14.3A8 8 0 0 1 9.7 4.5a8 8 0 1 0 9.8 9.8Z"/>',cosmos:'<path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3Z"/><path d="M20 2v4m-2-2h4"/>'};
+function setLighting(lighting){
+  if(!lightModes.includes(lighting))return;
+  state.lighting=lighting;state.night=lighting!=='day';
+  document.body.classList.toggle('night',state.night);document.body.classList.toggle('cosmos',lighting==='cosmos');
+  const next=lightModes[(lightModes.indexOf(lighting)+1)%lightModes.length];
+  $('light').dataset.mode=lighting;$('light').setAttribute('aria-label',`${lightNames[lighting]}。次は${lightNames[next]}`);
+  $('light').title=`${lightNames[lighting]} → ${lightNames[next]}`;$('light').innerHTML=`<svg viewBox="0 0 24 24">${lightIcons[lighting]}</svg>`;
+  $('light-mode').value=lighting;
+  document.querySelector('meta[name="theme-color"]').content=lighting==='cosmos'?'#05071a':state.night?'#071321':'#082b32';
+}
+$('light').onclick=()=>setLighting(lightModes[(lightModes.indexOf(state.lighting)+1)%lightModes.length]);
+$('light-mode').onchange=()=>setLighting($('light-mode').value);setLighting('day');
 $('settings').onclick=()=>{const open=$('settings-panel').hidden;$('settings-panel').hidden=!open;$('settings').setAttribute('aria-expanded',String(open));if(open)$('close-settings').focus();};
 function closeSettings(){$('settings-panel').hidden=true;$('settings').setAttribute('aria-expanded','false');}
 $('close-settings').onclick=()=>{closeSettings();$('settings').focus();};
-$('quality').onchange=()=>{state.quality=$('quality').value;fishMesh.count={low:92,medium:156,high:156}[state.quality];blades.count=state.quality==='low'?540:950;kelps.count=state.quality==='low'?50:74;resize();};
+$('quality').onchange=()=>{state.quality=$('quality').value;fishMesh.count={low:92,medium:156,high:156}[state.quality];blades.count=state.quality==='low'?540:950;kelps.count=state.quality==='low'?50:74;skyGeo.setDrawRange(0,state.quality==='low'?600:1400);resize();};
 function pauseLabel(){$('pause').textContent=state.paused?'Play ▷':'Pause Ⅱ';$('pause').setAttribute('aria-pressed',String(state.paused));}
 $('pause').onclick=()=>{state.paused=!state.paused;pauseLabel();};pauseLabel();
 $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else toast('ホーム画面に追加すると、広い画面で開けるよ。');}catch{toast('ホーム画面に追加すると、広い画面で開けるよ。');}};
@@ -425,7 +487,7 @@ $('photo').onclick=()=>{
   const picture=document.createElement('canvas');picture.width=canvas.width;picture.height=canvas.height;
   const ctx=picture.getContext('2d'),w=picture.width,h=picture.height;
   const gradient=ctx.createRadialGradient(w*.5,h*.35,0,w*.5,h*.35,Math.max(w,h)*.7);
-  gradient.addColorStop(0,state.night?'#18364b':'#22626a');gradient.addColorStop(1,state.night?'#071321':'#061e29');ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);ctx.drawImage(canvas,0,0);
+  gradient.addColorStop(0,state.lighting==='cosmos'?'#11132d':state.night?'#18364b':'#22626a');gradient.addColorStop(1,state.lighting==='cosmos'?'#030511':state.night?'#071321':'#061e29');ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);ctx.drawImage(canvas,0,0);
   ctx.fillStyle='#e7eee3';ctx.font=`italic ${Math.round(w*.025)}px Georgia`;ctx.fillText('Little Ocean.',w*.04,h*.08);ctx.font=`${Math.max(12,Math.round(w*.009))}px Georgia`;ctx.fillText('10718 · 10 / for Sumie',w*.04,h*.95);
   picture.toBlob(blob=>{if(!blob){toast('写真を保存できなかったみたい。');return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='little-ocean-10718.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);toast('海の一枚を、持って帰ろう。');},'image/png');
 };
@@ -438,11 +500,14 @@ function frame(now){
   raf=requestAnimationFrame(frame);const rawdt=clamp((now-last)/1000,0,.15);last=now;
   const dt=state.paused?0:Math.min(rawdt,.05);state.time+=dt;clock.value=state.time;
   moon.value=THREE.MathUtils.damp(moon.value,state.night?1:0,1.5,rawdt);
-  ambient.intensity=1.5-moon.value*.65;sun.intensity=3.3-moon.value*3;rim.intensity=1.45-moon.value*.4;
-  scene.fog.color.setHex(state.night?0x143445:0x205664);
+  cosmos.value=THREE.MathUtils.damp(cosmos.value,state.lighting==='cosmos'?1:0,1.8,rawdt);
+  ambient.intensity=(1.5-moon.value*.65)*(1.-cosmos.value*.82);sun.intensity=(3.3-moon.value*3)*(1.-cosmos.value*.8);rim.intensity=(1.45-moon.value*.4)*(1.-cosmos.value*.7);
+  scene.fog.color.copy(fogDay).lerp(fogMoon,moon.value).lerp(fogCosmos,cosmos.value);
+  glassMat.opacity=.025*(1.-cosmos.value*.8);tankEdges.material.opacity=.18*(1.-cosmos.value*.72);
   updateFish(dt);updateCamera(rawdt);
   const t=state.time*.115;manta.position.set(Math.sin(t+.9)*7.9,7.0+Math.sin(t*1.7)*.6,Math.cos(t+.9)*4.0);manta.rotation.y=Math.atan2(-Math.cos(t+.9)*7.9,Math.sin(t+.9)*4);manta.rotation.z=Math.sin(t)*.07;
   for(const shaft of shafts.children)shaft.rotation.y=Math.atan2(camera.position.x-shaft.position.x,camera.position.z-shaft.position.z);
+  updateCosmos();
   if(state.feeding>0){state.feeding=Math.max(0,state.feeding-dt);for(let i=0;i<28;i++)foodArray[i*3+1]-=dt*.07;foodGeo.attributes.position.needsUpdate=true;food.material.opacity=Math.min(.9,state.feeding/3);if(state.feeding===0)food.visible=false;}
   renderer.render(scene,camera);frames++;
   if(frames===1)renderer.shadowMap.autoUpdate=false;
@@ -454,5 +519,5 @@ canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();cancel
 canvas.addEventListener('webglcontextrestored',()=>location.reload());
 
 // Read-only diagnostics for rendering/accessibility regression checks; no account data.
-window.oceanDiagnostics=()=>({version:'1.0.1',ready:state.ready,mode:state.mode,paused:state.paused,night:state.night,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,orbitZoom,orbitDistance:camera.position.distanceTo(orbitTarget),fogDensity:scene.fog.density,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
+window.oceanDiagnostics=()=>({version:'1.1.0',ready:state.ready,mode:state.mode,paused:state.paused,lighting:state.lighting,night:state.night,cosmos:cosmos.value,glowingFish:fishGlow.visible?glowGeo.drawRange.count:0,stars:starSky.visible?Math.min(skyGeo.drawRange.count,1400):0,geometryCount:renderer.info.memory.geometries,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,orbitZoom,orbitDistance:camera.position.distanceTo(orbitTarget),fogDensity:scene.fog.density,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
