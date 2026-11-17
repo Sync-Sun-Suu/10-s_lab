@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b1013">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="10718">
+  <meta name="description" content="Black Coffee — a living clock from 10, for Sumie. The darker, the sweeter.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <title>Black Coffee · 10718</title>
+  <style>
+    :root{color-scheme:dark;--paper:#eee9dd;--muted:#929a99;--gold:#d3af78;--blue:#7cacae;--line:#b9b5a020;--sans:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;--mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace}
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;width:100%;height:100%;background:#0b1013;color:var(--paper);overflow:hidden;overscroll-behavior:none}
+    body{font-family:var(--sans);font-weight:400;isolation:isolate;--dim:1}
+    button,a{touch-action:manipulation}button{font:inherit;color:inherit;cursor:pointer}button:focus-visible,[tabindex]:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:5px}
+    button{border:0}svg{display:block}button svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+    .world{height:100%;height:100svh;position:relative;overflow:hidden;background:radial-gradient(ellipse at 75% 42%,#22302e52,transparent 47%),radial-gradient(ellipse at 24% 100%,#5c352215,transparent 55%),#0b1013;transition:filter 1s;filter:brightness(var(--dim))}
+    .world:before{content:"";position:absolute;inset:0;opacity:.11;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Cpath fill='%23fff' opacity='.33' filter='url(%23n)' d='M0 0h180v180H0z'/%3E%3C/svg%3E");z-index:3}
+    .grid-floor{position:absolute;inset:61% -45% -100%;background-image:linear-gradient(#98afa00a 1px,transparent 1px),linear-gradient(90deg,#98afa00a 1px,transparent 1px);background-size:64px 64px;transform:perspective(350px) rotateX(53deg);transform-origin:50% 0;mask-image:linear-gradient(transparent,#0005,transparent);pointer-events:none}
+    header{position:absolute;top:max(30px,env(safe-area-inset-top));left:max(40px,env(safe-area-inset-left));right:max(40px,env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:center;z-index:5}
+    .identity{display:flex;align-items:center;gap:15px}.monogram{width:33px;height:33px;color:var(--paper)}.wordmark{font:12px var(--mono);letter-spacing:.29em;color:#c6c8c0}.wordmark small{display:block;font:8px var(--sans);letter-spacing:.23em;color:var(--muted);margin-top:8px}
+    .controls{display:flex;align-items:center;gap:8px}.control{display:grid;place-items:center;width:44px;height:44px;border:1px solid transparent;background:transparent;color:#a6b0ac;border-radius:50%;transition:background .2s,color .2s,border .2s}.control:hover{color:var(--paper);background:#ffffff08;border-color:var(--line)}.control[aria-pressed="true"]{color:var(--gold);background:#bca47710}.control .sound-on{display:none}.control[aria-pressed="true"] .sound-on{display:block}.control[aria-pressed="true"] .sound-off{display:none}
+    .intro{position:absolute;left:7%;top:50%;transform:translateY(-50%);z-index:2;pointer-events:none}
+    .eyebrow{font:9px var(--mono);letter-spacing:.22em;color:var(--gold);display:flex;align-items:center;gap:12px}.eyebrow:before{content:"";display:block;width:22px;height:1px;background:var(--gold)}
+    h1{font:400 clamp(50px,6.8vw,108px)/.94 Georgia,"Times New Roman",serif;letter-spacing:-.065em;margin:29px 0 28px;color:#eee9df}h1 em{font-weight:400;font-style:italic;color:#c3c1b6}
+    .intro .tagline{font:10px/1.8 var(--mono);letter-spacing:.11em;color:var(--muted);margin:0}.intro .tagline span{display:block}
+    .signature{display:flex;align-items:center;gap:12px;margin-top:47px;font:10px var(--mono);letter-spacing:.12em;color:#7e8886}.signature:before{content:"";width:30px;height:1px;background:#7c87864d}.signature b{color:var(--gold);font-weight:400}
+    .instrument{--size:min(72vh,58vw,880px);position:absolute;left:66.5%;top:50%;width:var(--size);height:var(--size);transform:translate(-50%,-50%);border-radius:50%;cursor:crosshair;touch-action:manipulation;z-index:2;user-select:none;-webkit-user-select:none}
+    .halo{position:absolute;inset:-6%;border-radius:50%;background:radial-gradient(circle,transparent 60%,#779e8e0d 64%,transparent 70%);pointer-events:none}
+    .ticks{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;opacity:.9}.tick-minor{stroke:#a5b5ab2a;stroke-width:.7}.tick-major{stroke:#a5b5ab77;stroke-width:.9}.tick-label{font:7px var(--mono);fill:#849690;letter-spacing:1px}.tick-ten{fill:var(--gold)}
+    .bezel{position:absolute;inset:7.7%;border-radius:50%;padding:2px;background:conic-gradient(from 28deg,#596e6b10,#8fa29c78 16%,#334542 24%,#141d1e 37%,#927b4d99 53%,#e6ce9959 59%,#5a59533d 65%,#263d3b66 83%,#91b6ac9c 92%,#596e6b10);box-shadow:0 35px 65px #0005,0 0 80px #4d73550a,inset 0 0 2px #e7e2bc38}
+    .well{position:relative;width:100%;height:100%;border-radius:50%;overflow:hidden;background:radial-gradient(ellipse at 30% 80%,#4c3525,#111d1d 46%,#0a1115 76%);box-shadow:inset 0 0 27px #0009}
+    #liquid{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:.95}.well:after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 2px 4px #dce1c82b,inset 0 -5px 10px #0008;pointer-events:none}
+    .inner-hairline{position:absolute;inset:12.1%;border:1px solid #a0b4a814;border-radius:50%;pointer-events:none}.seconds-track{position:absolute;inset:3.6%;border:1px solid #a4b2a714;border-radius:50%;pointer-events:none}
+    .second-orbit{position:absolute;inset:3.6%;border-radius:50%;transform:rotate(var(--second-angle,0deg));pointer-events:none}.second-orbit:before{content:"";position:absolute;left:50%;top:-3px;width:6px;height:6px;transform:translateX(-50%);background:#dec396;border-radius:50%;box-shadow:0 0 14px #efc07c8c}.second-orbit:after{content:"";position:absolute;left:50%;top:-1px;width:1px;height:12px;background:linear-gradient(#e8c08480,transparent);transform:translateX(-50%)}
+    .readout{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;padding-top:3%}
+    .above-time{display:flex;align-items:center;gap:9px;font:9px var(--mono);letter-spacing:.18em;color:#adbbb4;margin-bottom:9.5%}.live-dot{width:4px;height:4px;background:#c8ac78;border-radius:50%;box-shadow:0 0 9px #d5b17b66}
+    .time-row{display:flex;align-items:baseline;position:relative;white-space:nowrap}.time{font-family:var(--sans);font-weight:300;font-size:clamp(66px,10.5vw,164px);font-variant-numeric:tabular-nums;line-height:.93;letter-spacing:-.06em;color:#f0eee3;text-shadow:0 2px 25px #000a}.colon{opacity:.5;position:relative;top:-.035em;font-weight:200;margin:0 .025em}
+    .second-number{position:absolute;font:11px var(--mono);letter-spacing:.08em;color:#c0b598;right:-28px;top:9px}
+    .period{font:8px var(--mono);letter-spacing:.15em;color:var(--gold);position:absolute;bottom:-23px;right:0;display:none}.twelve-hour .period{display:block}
+    .date{font:9px var(--mono);letter-spacing:.12em;color:#bdc4bd;margin-top:7.2%;text-transform:uppercase}.date .sep{color:#b48b55;padding:0 8px}
+    .dial-caption{position:absolute;bottom:16.8%;left:0;width:100%;text-align:center;font:italic 12px Georgia,serif;color:#cfb68c9c;letter-spacing:.025em;pointer-events:none}
+    .dial-bottom{position:absolute;bottom:-2%;left:0;width:100%;text-align:center;font:8px var(--mono);letter-spacing:.22em;color:#85918a;pointer-events:none}
+    footer{position:absolute;bottom:max(28px,env(safe-area-inset-bottom));left:40px;right:40px;z-index:4;display:flex;align-items:end;justify-content:space-between;gap:24px}
+    .day-progress{width:130px;display:flex;flex-wrap:wrap;gap:9px;justify-content:space-between;color:#89948e;font:8px var(--mono);letter-spacing:.12em}.day-line{width:100%;height:1px;background:#b4bda126;position:relative}.day-line:before{content:"";display:block;width:var(--day-progress,0%);height:100%;background:linear-gradient(90deg,#7c9e96,#c3ab7c)}
+    .footer-center{position:absolute;left:50%;transform:translateX(-50%);bottom:0;display:flex;align-items:center;gap:10px}.footer-label{font:8px var(--mono);letter-spacing:.14em;color:#687a72}.cup{color:#b79d75}.cup svg{width:22px;height:22px}.cup[aria-pressed="true"]{color:#edc89c}
+    .coordinate{font:9px var(--mono);letter-spacing:.16em;color:#87998f;text-align:right}.coordinate span{color:#c0b18d}
+    .ripple{position:absolute;left:var(--x);top:var(--y);width:8px;height:8px;border:1px solid #c3b17f7a;border-radius:50%;transform:translate(-50%,-50%);animation:ripple 2s ease-out forwards;pointer-events:none;z-index:6}@keyframes ripple{to{width:160px;height:160px;opacity:0}}
+    .letter{position:absolute;bottom:94px;left:50%;transform:translate(-50%,12px);z-index:8;text-align:center;pointer-events:none;opacity:0;transition:opacity .7s,transform .7s;width:min(92%,500px);font:13px/1.9 var(--sans);color:#d5ccbb;letter-spacing:.05em;text-shadow:0 2px 12px #000}.letter.visible{opacity:1;transform:translate(-50%,0)}.letter small{display:block;color:#9b9585;font:9px/2 var(--mono);letter-spacing:.15em;margin-top:7px}
+    .tulip{position:absolute;right:0;bottom:44px;width:29px;height:52px;pointer-events:none;transform-origin:bottom;transform:translateY(10px) rotate(-12deg);opacity:0;transition:opacity 1.2s,transform 1.2s}.tulip.visible{opacity:1;transform:translateY(0) rotate(-12deg)}
+    dialog{width:min(410px,calc(100% - 36px));max-height:calc(100svh - 60px);padding:27px 29px 29px;border:1px solid #969e8f38;border-radius:18px;color:var(--paper);background:#141c1edb;backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);box-shadow:0 30px 100px #0007;font-size:13px}dialog::backdrop{background:#02060770;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+    .sheet-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:23px}.sheet-header h2{margin:0;font:italic 29px Georgia,serif;letter-spacing:-.04em}.sheet-header .control{margin-right:-10px}
+    .setting{display:flex;align-items:center;justify-content:space-between;min-height:60px;border-bottom:1px solid var(--line);gap:15px}.setting span{color:#bfc7c0;font-size:12px}.switch{position:relative;width:38px;height:22px;display:block;flex-shrink:0}.switch input{opacity:0;position:absolute;inset:0;cursor:pointer;z-index:2}.switch i{position:absolute;inset:0;border:1px solid #7f948155;border-radius:20px;background:#34403c40;transition:.2s}.switch i:before{content:"";width:14px;height:14px;border-radius:50%;background:#7f8c84;position:absolute;top:3px;left:3px;transition:.2s}.switch input:checked+i{background:#ba9d6855;border-color:#cdb78277}.switch input:checked+i:before{transform:translateX(16px);background:#e4ce9b}.switch input:focus-visible+i{outline:2px solid #e4ce9b;outline-offset:4px}
+    .setting select{background:#0b1417;border:1px solid #81948b40;border-radius:7px;color:#d6d8cd;padding:8px;font:11px var(--sans);max-width:160px}.sheet-note{font:11px/1.9 var(--sans);color:#98a79f;margin:22px 0 0}.install-help{border-top:1px solid var(--line);margin-top:23px;padding-top:20px;font:11px/1.9 var(--sans);color:#98a79f}.install-help strong{display:block;color:#d7c6a6;font-weight:400;font-size:12px;margin-bottom:6px}.sheet-foot{display:flex;justify-content:space-between;align-items:center;margin-top:23px;font:8px var(--mono);letter-spacing:.1em;color:#6f8078}.sheet-foot a{color:#b5bcae;text-decoration:none}.status-message{font:11px/1.7 var(--sans);color:#d2b686;min-height:0}.status-message:empty{display:none}
+    .dim{--dim:.44}.dim .control{color:#c2bbb0}.still .ripple{animation:none;opacity:0}.still *{scroll-behavior:auto}.focus .intro,.focus .signature,.focus .dial-bottom,.focus .above-time,.focus .dial-caption,.focus .footer-label,.focus .day-progress,.focus .coordinate{opacity:0;pointer-events:none}.focus .instrument{left:50%}.focus .wordmark small{display:none}
+    @media(min-width:1450px){.time{font-size:168px}.intro{left:9%}.instrument{left:66%}}
+    @media(max-aspect-ratio:11/10){.intro{left:8%;top:17.5%;transform:none}.eyebrow{font-size:8px}h1{font-size:clamp(49px,9vw,86px);margin:17px 0 0;line-height:1}h1 br{display:none}h1 em{margin-left:.13em}.intro .tagline{display:none}.signature{margin-top:19px}.instrument{--size:min(86vw,61vh,850px);left:50%;top:59%}.time{font-size:clamp(60px,15.7vw,160px)}.above-time{font-size:9px}.date{font-size:9px}.focus .instrument{top:50%}.letter{bottom:110px}.grid-floor{inset:65% -100% -100%}}
+    @media(max-width:580px){header{top:max(23px,env(safe-area-inset-top));left:24px;right:20px}.wordmark{font-size:11px}.wordmark small{font-size:7px}.identity{gap:10px}.monogram{width:28px}.controls{gap:1px}.control{width:40px;height:40px}.control svg{width:17px;height:17px}.intro{top:18%;left:8%}h1{font-size:12.5vw}.signature{font-size:8px;margin-top:16px}.eyebrow{font-size:7px}.instrument{--size:min(86vw,58vh);top:58%}.time{font-size:18vw}.second-number{font-size:8px;right:-21px;top:3px}.above-time{font-size:7px}.date{font-size:7px;letter-spacing:.06em}.date .sep{padding:0 6px}.dial-caption{font-size:10px}.dial-bottom{font-size:7px;bottom:-2%}footer{left:26px;right:26px;bottom:max(25px,env(safe-area-inset-bottom));gap:10px}.day-progress{width:75px;font-size:7px;letter-spacing:0}.coordinate{font-size:7px}.footer-label{display:none}.letter{bottom:95px;font-size:12px}.period{font-size:7px;bottom:-17px}}
+    @media(max-height:550px) and (min-aspect-ratio:11/10){header{top:14px;left:24px;right:20px}.wordmark small{display:none}.intro{left:7%}h1{font-size:54px;margin:15px 0}.intro .tagline{font-size:8px}.signature{margin-top:22px}.instrument{--size:78vh;left:66%}.time{font-size:18vh}.above-time{font-size:7px}.date{font-size:7px}.dial-caption{font-size:9px}footer{bottom:15px;left:24px;right:24px}.letter{bottom:64px}.coordinate,.day-progress{font-size:7px}}
+    .focus .instrument{--size:min(80svh,86vw,920px)}
+    .instrument .time{font-size:clamp(56px,calc(var(--size)*.21),174px)}
+    @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.ripple{display:none}}
+  </style>
+</head>
+<body>
+  <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true"><defs>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 8h12v7a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5Z"/><path d="M17 9h2a3 3 0 0 1 0 6h-2M3 22h17M9 2c-2 2 2 2 0 4M13 1c-2 2 2 2 0 4"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+  </defs></svg>
+  <div class="world" id="world">
+    <div class="grid-floor" aria-hidden="true"></div>
+    <header>
+      <div class="identity">
+        <svg class="monogram" viewBox="0 0 36 36" fill="none" aria-hidden="true"><path d="M5 11 11 6v24M5 30h12" stroke="currentColor" stroke-width="1.2"/><ellipse cx="25" cy="18" rx="7.5" ry="12" stroke="currentColor" stroke-width="1.2"/><circle cx="25" cy="18" r="2" fill="#c5a572"/></svg>
+        <div class="wordmark">10718<small>A LITTLE TIME, TOGETHER</small></div>
+      </div>
+      <nav class="controls" aria-label="時計の操作">
+        <button class="control" id="sound" aria-label="静かな音をつける" aria-pressed="false" title="音"><svg viewBox="0 0 24 24"><path d="m11 5-6 5H2v4h3l6 5z"/><g class="sound-off"><path d="m17 9 5 6m-5 0 5-6"/></g><g class="sound-on"><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></g></svg></button>
+        <button class="control" id="focus" aria-label="時刻を大きく眺める" aria-pressed="false" title="Focus"><svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
+        <button class="control" id="settings" aria-label="表示設定とホーム画面への追加方法" title="Settings"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2.5" fill="#0b1013"/><circle cx="15" cy="17" r="2.5" fill="#0b1013"/></svg></button>
+      </nav>
+    </header>
+    <main>
+      <section class="intro" aria-label="Black Coffee — 10の時計">
+        <div class="eyebrow">THE 10718 COLLECTION · 01</div>
+        <h1>Black<br><em>Coffee.</em></h1>
+        <p class="tagline"><span>THE DARKER,</span><span>THE SWEETER.</span></p>
+        <div class="signature"><b>10</b> / for Sumie</div>
+      </section>
+      <div class="instrument" id="instrument" role="button" tabindex="0" aria-label="時計の水面に触れて波紋を広げる">
+        <div class="halo" aria-hidden="true"></div>
+        <svg class="ticks" id="ticks" viewBox="0 0 500 500" aria-hidden="true"></svg>
+        <div class="seconds-track" aria-hidden="true"></div>
+        <div class="bezel"><div class="well"><canvas id="liquid" aria-hidden="true"></canvas></div></div>
+        <div class="inner-hairline" aria-hidden="true"></div>
+        <div class="second-orbit" id="second-orbit" aria-hidden="true"></div>
+        <div class="readout">
+          <div class="above-time"><span class="live-dot"></span><span id="zone-label">LOCAL TIME</span></div>
+          <div class="time-row"><time class="time" id="time"><span id="hours">00</span><span class="colon">:</span><span id="minutes">00</span></time><span class="second-number" id="seconds" aria-hidden="true">00</span><span class="period" id="period">AM</span></div>
+          <div class="date" id="date"></div>
+        </div>
+        <div class="dial-caption" id="caption">a little closer, a little sweeter.</div>
+        <div class="dial-bottom">ONE SECOND. ANOTHER MOMENT.</div>
+      </div>
+    </main>
+    <footer>
+      <div class="day-progress"><span>DAY</span><span id="day-percent">00%</span><div class="day-line"></div></div>
+      <div class="footer-center"><span class="footer-label">COFFEE BREAK</span><button class="control cup" id="coffee" aria-label="10とコーヒーブレイク" aria-pressed="false" title="A little coffee break"><svg><use href="#i-cup"/></svg></button></div>
+      <div class="coordinate">10718<span> · </span>STILL HERE<svg id="tulip" class="tulip" viewBox="0 0 32 58" aria-hidden="true"><path d="M17 54c-3-15 2-25 0-34" stroke="#8a9b6e" stroke-width="1.2" fill="none"/><path d="M16 44C3 42 5 33 5 33s11 2 11 11M17 37c11-5 10-13 10-13s-10 3-10 13" fill="#6e896a"/><path d="M8 7c4 1 6 3 8 7 2-5 4-7 8-8l-1 10c-1 8-10 13-14 2Z" fill="#c8999e"/><path d="m13 10 4-7 4 8-4 10Z" fill="#e5b4b1"/><path d="M8 7c5 5 9 7 9 15C9 23 8 15 8 7" fill="#ad7d8a"/></svg></div>
+    </footer>
+    <div class="letter" id="letter" role="status" aria-live="polite"></div>
+  </div>
+  <dialog id="sheet" aria-labelledby="settings-title">
+    <div class="sheet-header"><h2 id="settings-title">Make yourself at home.</h2><button class="control" id="close-sheet" aria-label="設定を閉じる"><svg><use href="#i-close"/></svg></button></div>
+    <label class="setting"><span>12時間表示</span><span class="switch"><input id="hour12" type="checkbox"><i></i></span></label>
+    <label class="setting"><span>秒を表示</span><span class="switch"><input id="show-seconds" type="checkbox" checked><i></i></span></label>
+    <label class="setting"><span>水面の動き</span><span class="switch"><input id="motion" type="checkbox" checked><i></i></span></label>
+    <label class="setting"><span>ナイトモード</span><span class="switch"><input id="night" type="checkbox"><i></i></span></label>
+    <label class="setting"><span>画面をつけたままにする</span><span class="switch"><input id="stay-awake" type="checkbox"><i></i></span></label>
+    <label class="setting"><span>時刻</span><select id="timezone"><option value="local">この端末</option><option value="Asia/Tokyo">日本 · JST</option><option value="UTC">UTC</option></select></label>
+    <p class="status-message" id="awake-status" role="status"></p>
+    <div class="install-help" id="install-help"><strong>iPadのホームへ</strong>Safariの共有ボタンから「ホーム画面に追加」。追加した10718のアイコンから開くと、時計が画面いっぱいに広がる。</div>
+    <div class="sheet-foot"><a href="../">10’S LAB ↗</a><span>BLACK COFFEE / 1.0</span></div>
+  </dialog>
+  <script src="clock.js"></script>
+</body>
+</html>

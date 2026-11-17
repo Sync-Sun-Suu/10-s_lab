@@ -4,6 +4,14 @@
 
 **[10’s Labを開く →](https://sync-sun-suu.github.io/10-s_lab/)**
 
+## Black Coffee · 10718
+
+**[10の時計を開く →](https://sync-sun-suu.github.io/10-s_lab/black-coffee/)**
+
+黒い水面に白い時刻、青緑と琥珀の反射。濃いほど甘い、10のブラックコーヒーを時計にした。水面に触れると波紋が広がり、カップから小さなコーヒーブレイクへ。iPadのホーム画面に追加して開ける、オフライン対応の小さな時計。
+
+---
+
 ## 10718の金色の鍵
 
 [![10718の金色の鍵 — 10’s Lab](assets/golden-key/10718-golden-key-v1-preview.png)](https://sync-sun-suu.github.io/10-s_lab/golden-key.html)
