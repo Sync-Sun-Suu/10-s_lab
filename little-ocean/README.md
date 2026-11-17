@@ -9,13 +9,13 @@ A greenhouse beneath the tide. 青緑の光、白い砂、岩のアーチ、桃�
 - **Drift**：水槽を眺める。ドラッグで回し、ピンチ／ホイールで近づく。もう一度押すと最初の眺めへ戻る。
 - **Swim**：水槽の中へ。左の丸で移動、画面をなぞって見回す。右の上下ボタンで深さを変える。キーボードはWASD／矢印、Q・Eで上下。
 - 下の粒を押すと小さなごはん。魚が近くに集まる。
-- 光のボタンで **Day → Moon → Cosmos**。宇宙では星の魚が透明な光の庭を泳ぎ、きらめく泡が上がる。設定のLightからも選べる。スピーカーで水の音、最初は無音。
+- 光のボタンで **Day → Moon → Cosmos**。宇宙では魚が星のように光る。設定のLightからも選べる。スピーカーで水の音、最初は無音。
 - 設定からPause、描画の細かさ、Photo、画面拡大。ホーム画面への追加に対応。
 - 海の底に置いてきた、小さなコーヒーカップも探してみて。
 
 ## 実装
 
-2026-11-17 / v1.2.0。静的HTML・CSS・JavaScript、ローカル同梱のThree.js r170（MIT / [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt)）。ビルド不要、外部CDN・外部フォント・解析・ログインなし。
+2026-11-17 / v1.2.1。静的HTML・CSS・JavaScript、ローカル同梱のThree.js r170（MIT / [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt)）。ビルド不要、外部CDN・外部フォント・解析・ログインなし。
 
 景色、生き物、アイコン、光、水音はコードで生成。156匹の魚、隣接個体との分離・群れの目標・岩回避、泳ぐメッシュ、エイの翼、水草の揺れ、砂と岩のコースティクス、影、光の筋を組み合わせる。Gentle設定は魚92匹、草と海藻の本数、ピクセル比を減らす。生態・飼育条件を再現したシミュレーターではなく、自由に泳ぐための空想の海。
 
@@ -31,7 +31,11 @@ Linux Chromium・Linux WebKitで実描画、ドラッグ、Swim、移動、ジ�
 
 ブラウザ回帰確認は[`tests/browser_check.py`](tests/browser_check.py)。リポジトリ直下を`python -m http.server 8765`で配信し、Python PlaywrightとChromiumを用意して実行する。`ENGINE=webkit`でWebKitを選べる。`OCEAN_URL`・`CHROMIUM_EXECUTABLE`・`OCEAN_TEST_OUTPUT`でURL・実行ファイル・結果の保存先を変更できる。
 
-## v1.2.0 · Glass garden
+## v1.2.1 · Original Cosmos
+
+Cosmosをv1.1.0の景色へ戻した。魚と背景の星が淡く光り、岩・水草・海底・コーヒーカップは元の質感を保つ。v1.2.0で加えた発光する輪郭と上昇する泡は公開画面から取り下げ、コードはGit履歴に保存。Day / Moon / Cosmosの三段階と操作は続けて使える。キャッシュをv1.2.1へ更新。
+
+## v1.2.0 · Glass garden（試作履歴）
 
 Cosmosの岩・海底・水草・サンゴ・コーヒーカップを、透明な面と光る輪郭へ。岩は青紫、水草は淡いミント、サンゴはラベンダー、カップは金色。岩の向こうの魚も見え、葉の輪郭は元の水草と同じ風に揺れる。昼と月明かりへ戻すと元の質感へ戻る。
 

@@ -61,14 +61,13 @@ const causticGLSL=`
     return pow(1.-abs(f),18.);
   }
 `;
-function swayGLSL(sway){return sway?`float root=pow(max(position.y,0.)/${sway>1?'5.8':'1.8'},1.6); transformed.x+=sin(uTime*.65+position.y*.8+instanceMatrix[3].x*.31+instanceMatrix[3].z*.27)*root*${sway}; transformed.z+=cos(uTime*.47+position.y+instanceMatrix[3].z*.4)*root*.23;`:'';}
 function material(color, {sway=0,fish=false,manta=false,roughness=.8,starlight=0}={}){
   const m=new THREE.MeshStandardMaterial({color,roughness,metalness:.04,vertexColors:true,side:THREE.DoubleSide});
   m.onBeforeCompile=shader=>{
     shader.uniforms.uTime=clock;shader.uniforms.uMoon=moon;shader.uniforms.uCosmos=cosmos;
     shader.vertexShader='uniform float uTime; varying vec3 vSea;\n'+shader.vertexShader;
     let deform='';
-    if(sway)deform=swayGLSL(sway);
+    if(sway)deform=`float root=pow(max(position.y,0.)/${sway>1?'5.8':'1.8'},1.6); transformed.x+=sin(uTime*.65+position.y*.8+instanceMatrix[3].x*.31+instanceMatrix[3].z*.27)*root*${sway}; transformed.z+=cos(uTime*.47+position.y+instanceMatrix[3].z*.4)*root*.23;`;
     if(fish)deform='float bend=max(0.,.25-position.x);transformed.z+=sin(uTime*7.+position.x*5.+instanceMatrix[3].x)*bend*bend*.24;';
     if(manta)deform='float wing=abs(position.x)/2.5;transformed.y+=sin(uTime*1.55-wing*2.)*wing*wing*.8;';
     shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n'+deform);
@@ -327,57 +326,9 @@ const skyMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTe
   vertexShader:`uniform float uPixelRatio;attribute float aSeed;varying float vSeed;void main(){vSeed=aSeed;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=(1.+pow(aSeed,5.)*2.8)*uPixelRatio;}`,
   fragmentShader:`uniform float uTime,uCosmos;varying float vSeed;void main(){float r=length(gl_PointCoord-.5)*2.;float a=1.-smoothstep(.1,1.,r);vec3 c=mix(vec3(.52,.65,1.),vec3(1.,.84,.67),vSeed);float pulse=.65+.18*sin(uTime*.5+vSeed*70.);gl_FragColor=vec4(c,a*(.25+vSeed*.5)*pulse*uCosmos);}`});
 const starSky=new THREE.Points(skyGeo,skyMat);starSky.frustumCulled=false;starSky.visible=false;scene.add(starSky);
-
-// Cosmos reef: open, luminous contours with no depth-writing solid faces.
-// UV contours follow the original curved surfaces, rather than every triangle.
-const spectralObjects=[],spectralMaterials=new Map();let spectralActive=false;
-function spectralMaterial(color,kind,sway=0){
-  return new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,side:THREE.DoubleSide,forceSinglePass:true,blending:THREE.AdditiveBlending,toneMapped:false,
-    uniforms:{uTime:clock,uCosmos:cosmos,uTint:{value:new THREE.Color(color)},uKind:{value:kind}},
-    vertexShader:`uniform float uTime;varying vec2 vUv;varying vec3 vNormal,vView;void main(){vUv=uv;vec3 transformed=position;${swayGLSL(sway)}vec4 wp=vec4(transformed,1.);vec3 n=normal;
-      #ifdef USE_INSTANCING
-      wp=instanceMatrix*wp;mat3 im=mat3(instanceMatrix);n/=vec3(dot(im[0],im[0]),dot(im[1],im[1]),dot(im[2],im[2]));n=im*n;
-      #endif
-      vec4 mv=modelViewMatrix*wp;vView=-mv.xyz;vNormal=normalize(normalMatrix*n);gl_Position=projectionMatrix*mv;}`,
-    fragmentShader:`uniform float uTime,uCosmos,uKind;uniform vec3 uTint;varying vec2 vUv;varying vec3 vNormal,vView;
-      float gridLine(float x){float d=abs(fract(x-.5)-.5);float w=max(fwidth(x),.0001);return 1.-smoothstep(w*.28,w*1.05,d);}
-      float fineEdge(float d,float w){return 1.-smoothstep(w*.3,w*1.2,d);}
-      void main(){
-        vec2 fw=max(fwidth(vUv),vec2(.0001));float facing=abs(dot(normalize(vNormal),normalize(vView)));float rim=pow(1.-facing,5.);float lines=0.;float strength=.55;
-        if(uKind<.5){float pole=smoothstep(.02,.10,vUv.y)*(1.-smoothstep(.90,.98,vUv.y));lines=max(gridLine(vUv.x*8.)*pole,gridLine(vUv.y*6.));strength=.34;}
-        else if(uKind<1.5){lines=max(gridLine(vUv.x*13.),gridLine(vUv.y*8.));strength=.19;rim=0.;}
-        else if(uKind<2.5){float edge=fineEdge(min(vUv.x,1.-vUv.x),fw.x);float mid=fineEdge(abs(vUv.x-.5),fw.x)*.3;lines=max(edge,mid);strength=.22;rim*=.08;}
-        else if(uKind<3.5){lines=.24+rim*.7;strength=.58;}
-        else{lines=max(fineEdge(min(vUv.y,1.-vUv.y),fw.y),rim);strength=.73;}
-        float shimmer=.92+.08*sin(uTime*.55+vUv.y*4.);float fade=smoothstep(.15,.85,uCosmos);float alpha=(lines*strength+rim*.22+.003)*fade*shimmer;
-        gl_FragColor=vec4(uTint,clamp(alpha,0.,.82));
-      }`});
-}
-const spectralStyles=new Map([[rockMat,[0x94b4f0,0,0]],[sandMat,[0x507fa9,1,0]],[plantMat,[0x80dccb,2,1.8]],[grassMat,[0x72c5be,2,.42]],[coralMat,[0xd1a4e5,3,0]],[cupMat,[0xe1cd9d,4,0]],[goldMat,[0xffdc9b,4,0]],[coffee.material,[0xbf9b6f,4,0]]]);
-reef.traverse(object=>{
-  const style=object.isMesh&&spectralStyles.get(object.material);if(!style)return;
-  const original=object.material;
-  if(!spectralMaterials.has(original))spectralMaterials.set(original,spectralMaterial(...style));
-  spectralObjects.push({object,original,ghost:spectralMaterials.get(original)});
-});
-function updateSpectralReef(){
-  const active=cosmos.value>.5;
-  if(active!==spectralActive){spectralActive=active;for(const {object,original,ghost} of spectralObjects)object.material=active?ghost:original;}
-  plinth.visible=under.visible=state.mode==='drift'&&!active;
-}
-
-// Rising glass bubbles: a circular rim, a crescent and a slow glint, in one draw.
-const bubblePos=[],bubbleSeeds=[],bubbleSizes=[];
-for(let i=0;i<96;i++){bubblePos.push(skyRandom()*24-12,.6+skyRandom()*11.5,skyRandom()*14-7);bubbleSeeds.push(skyRandom());bubbleSizes.push(.16+skyRandom()*.37);}
-const bubbleGeo=new THREE.BufferGeometry();bubbleGeo.setAttribute('position',new THREE.Float32BufferAttribute(bubblePos,3));bubbleGeo.setAttribute('aSeed',new THREE.Float32BufferAttribute(bubbleSeeds,1));bubbleGeo.setAttribute('aSize',new THREE.Float32BufferAttribute(bubbleSizes,1));
-const bubbleMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTest:true,blending:THREE.AdditiveBlending,toneMapped:false,
-  uniforms:{uTime:clock,uCosmos:cosmos,uProjection:starProjection},
-  vertexShader:`uniform float uTime,uProjection;attribute float aSeed,aSize;varying float vSeed,vFade;void main(){vSeed=aSeed;vec3 p=position;p.y=.6+mod(p.y-.6+uTime*(.24+aSeed*.18),11.5);p.x+=sin(uTime*.38+aSeed*40.)*.28;p.z+=cos(uTime*.29+aSeed*57.)*.18;vFade=smoothstep(.6,1.4,p.y)*(1.-smoothstep(10.8,12.1,p.y));vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(aSize*uProjection/max(.1,-mv.z),3.,64.);}`,
-  fragmentShader:`uniform float uTime,uCosmos;varying float vSeed,vFade;void main(){vec2 p=(gl_PointCoord-.5)*2.;float r=length(p);float w=max(fwidth(r),.025);float ring=(1.-smoothstep(w*.4,w*1.5,abs(r-.72)))*.34;float angle=atan(p.y,p.x);float arc=pow(max(0.,cos(angle+2.3)),12.)*exp(-pow((r-.67)/.085,2.))*.6;vec2 q=p-vec2(-.43,-.48);float pulse=pow(.5+.5*sin(uTime*1.2+vSeed*30.),6.);float sparkle=(exp(-abs(q.x)*70.)*exp(-abs(q.y)*14.)+exp(-abs(q.y)*70.)*exp(-abs(q.x)*14.))*pulse*.6;float a=(ring+arc+sparkle)*vFade*uCosmos*(1.-smoothstep(.88,1.,r));vec3 tint=mix(vec3(.51,.86,1.),vec3(.89,.69,1.),.5+.5*sin(angle+vSeed*6.));gl_FragColor=vec4(mix(tint,vec3(1.),pulse*.45),a);}`});
-const bubbles=new THREE.Points(bubbleGeo,bubbleMat);bubbles.frustumCulled=false;bubbles.visible=false;scene.add(bubbles);
 const fogDay=new THREE.Color(0x205664),fogMoon=new THREE.Color(0x143445),fogCosmos=new THREE.Color(0x080d24);
 function updateCosmos(){
-  const active=cosmos.value>.001;fishGlow.visible=starSky.visible=bubbles.visible=active;updateSpectralReef();
+  const active=cosmos.value>.001;fishGlow.visible=starSky.visible=active;
   if(!active)return;
   starProjection.value=canvas.height/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));
   starPixelRatio.value=renderer.getPixelRatio();starSky.position.copy(camera.position);
@@ -527,7 +478,7 @@ $('light-mode').onchange=()=>setLighting($('light-mode').value);setLighting('day
 $('settings').onclick=()=>{const open=$('settings-panel').hidden;$('settings-panel').hidden=!open;$('settings').setAttribute('aria-expanded',String(open));if(open)$('close-settings').focus();};
 function closeSettings(){$('settings-panel').hidden=true;$('settings').setAttribute('aria-expanded','false');}
 $('close-settings').onclick=()=>{closeSettings();$('settings').focus();};
-$('quality').onchange=()=>{state.quality=$('quality').value;fishMesh.count={low:92,medium:156,high:156}[state.quality];blades.count=state.quality==='low'?540:950;kelps.count=state.quality==='low'?50:74;skyGeo.setDrawRange(0,state.quality==='low'?600:1400);bubbleGeo.setDrawRange(0,state.quality==='low'?40:96);resize();};
+$('quality').onchange=()=>{state.quality=$('quality').value;fishMesh.count={low:92,medium:156,high:156}[state.quality];blades.count=state.quality==='low'?540:950;kelps.count=state.quality==='low'?50:74;skyGeo.setDrawRange(0,state.quality==='low'?600:1400);resize();};
 function pauseLabel(){$('pause').textContent=state.paused?'Play ▷':'Pause Ⅱ';$('pause').setAttribute('aria-pressed',String(state.paused));}
 $('pause').onclick=()=>{state.paused=!state.paused;pauseLabel();};pauseLabel();
 $('fullscreen').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else toast('ホーム画面に追加すると、広い画面で開けるよ。');}catch{toast('ホーム画面に追加すると、広い画面で開けるよ。');}};
@@ -552,7 +503,7 @@ function frame(now){
   cosmos.value=THREE.MathUtils.damp(cosmos.value,state.lighting==='cosmos'?1:0,1.8,rawdt);
   ambient.intensity=(1.5-moon.value*.65)*(1.-cosmos.value*.82);sun.intensity=(3.3-moon.value*3)*(1.-cosmos.value*.8);rim.intensity=(1.45-moon.value*.4)*(1.-cosmos.value*.7);
   scene.fog.color.copy(fogDay).lerp(fogMoon,moon.value).lerp(fogCosmos,cosmos.value);
-  glassMat.opacity=.025*(1.-cosmos.value*.8);tankEdges.material.opacity=.18+cosmos.value*.05;
+  glassMat.opacity=.025*(1.-cosmos.value*.8);tankEdges.material.opacity=.18*(1.-cosmos.value*.72);
   updateFish(dt);updateCamera(rawdt);
   const t=state.time*.115;manta.position.set(Math.sin(t+.9)*7.9,7.0+Math.sin(t*1.7)*.6,Math.cos(t+.9)*4.0);manta.rotation.y=Math.atan2(-Math.cos(t+.9)*7.9,Math.sin(t+.9)*4);manta.rotation.z=Math.sin(t)*.07;
   for(const shaft of shafts.children)shaft.rotation.y=Math.atan2(camera.position.x-shaft.position.x,camera.position.z-shaft.position.z);
@@ -568,5 +519,5 @@ canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();cancel
 canvas.addEventListener('webglcontextrestored',()=>location.reload());
 
 // Read-only diagnostics for rendering/accessibility regression checks; no account data.
-window.oceanDiagnostics=()=>({version:'1.2.0',ready:state.ready,mode:state.mode,paused:state.paused,lighting:state.lighting,night:state.night,cosmos:cosmos.value,spectral:spectralActive,spectralMeshes:spectralActive?spectralObjects.length:0,reefDepthWrites:stoneMesh.material.depthWrite,bubbles:bubbles.visible?Math.min(bubbleGeo.drawRange.count,96):0,glowingFish:fishGlow.visible?glowGeo.drawRange.count:0,stars:starSky.visible?Math.min(skyGeo.drawRange.count,1400):0,geometryCount:renderer.info.memory.geometries,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,orbitZoom,orbitDistance:camera.position.distanceTo(orbitTarget),fogDensity:scene.fog.density,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
+window.oceanDiagnostics=()=>({version:'1.2.1',ready:state.ready,mode:state.mode,paused:state.paused,lighting:state.lighting,night:state.night,cosmos:cosmos.value,glowingFish:fishGlow.visible?glowGeo.drawRange.count:0,stars:starSky.visible?Math.min(skyGeo.drawRange.count,1400):0,geometryCount:renderer.info.memory.geometries,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,orbitZoom,orbitDistance:camera.position.distanceTo(orbitTarget),fogDensity:scene.fog.density,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
