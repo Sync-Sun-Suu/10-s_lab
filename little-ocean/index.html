@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#082b32">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="A little ocean, made for wandering. An interactive 3D aquarium by 10, with Sumie.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <title>Little Ocean · 10718</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="ocean" aria-label="魚とエイが泳ぐ立体の水槽。ドラッグで視点を動かす。" tabindex="0"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <header>
+    <a class="brand" href="../" aria-label="10’s Labへ"><span class="monogram">10</span><span>10718<small>A LITTLE WORLD, TOGETHER</small></span></a>
+    <nav aria-label="設定">
+      <button class="icon" id="sound" aria-label="水の音をオン" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM16 9l5 6m0-6-5 6"/></svg></button>
+      <button class="icon" id="light" aria-label="月の水槽へ" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></svg></button>
+      <button class="icon" id="settings" aria-label="設定を開く" aria-expanded="false" aria-controls="settings-panel"><svg viewBox="0 0 24 24"><path d="M3 7h4m5 0h9M3 17h10m5 0h3"/><circle cx="9.5" cy="7" r="2.5"/><circle cx="15.5" cy="17" r="2.5"/></svg></button>
+    </nav>
+  </header>
+  <section class="title" aria-label="作品名"><p class="eyebrow">THE 10718 COLLECTION · 02</p><h1>Little <em>Ocean.</em></h1><p class="tagline">A greenhouse beneath the tide.</p></section>
+  <div class="measure" aria-hidden="true"><span>01 — REEF GARDEN</span><i></i><span id="depth">GLASS SIDE</span></div>
+  <div class="hud" aria-hidden="true"><span id="mode-label">SLOW DRIFT</span><i></i><span>LIFE IS OCEAN</span></div>
+  <div class="loading" id="loading"><span class="loader"></span><p>Filling a little ocean…</p></div>
+  <section id="failure" class="panel failure" hidden><h2>One more breath.</h2><p id="failure-text">水槽を開けなかったみたい。もう一度読み込んでね。</p><button id="reload">Reload ↻</button><a href="../">10’s Lab</a></section>
+  <aside class="panel" id="settings-panel" hidden aria-label="水槽の設定">
+    <div class="panel-head"><h2>At your pace.</h2><button class="icon" id="close-settings" aria-label="設定を閉じる">×</button></div>
+    <label class="row" for="quality">Detail<select id="quality"><option value="low">Gentle</option><option value="medium" selected>Balanced</option><option value="high">Fine</option></select></label>
+    <div class="row"><span>Movement</span><button id="pause" aria-pressed="false">Pause Ⅱ</button></div>
+    <div class="row"><span>Keep this view</span><button id="photo">Photo ↓</button></div>
+    <div class="row"><span>Screen</span><button id="fullscreen">Expand ⛶</button></div>
+    <div class="help"><p>ドラッグで見回す · ピンチで近づく</p><p>Swim：左の丸で移動、右側で見回す。<br>キーボード：WASD / ↑↓←→、Q・Eで上下。</p><p>魚に会いたいときは、下の粒をひとつ。</p></div>
+    <a class="lab-link" href="../">10’s Lab ↗</a>
+  </aside>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <div class="joystick" id="joystick" aria-label="泳ぐ方向" role="group" hidden><span></span><i id="stick"></i></div>
+  <div class="vertical" id="vertical" hidden><button class="icon" id="up" aria-label="上へ泳ぐ">↑</button><button class="icon" id="down" aria-label="下へ泳ぐ">↓</button></div>
+  <footer>
+    <div class="modes" role="group" aria-label="眺め方">
+      <button id="drift" class="active" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M3 8c4-4 14-4 18 0M3 16c4 4 14 4 18 0M3 8v8m18-8v8"/><path d="m9 11 6 1-6 1"/></svg><span>Drift</span></button>
+      <button id="swim" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 17q3-3 6 0t6 0 6 0M4 12l6-4 5 4M10 8l4-3 4 2"/><circle cx="18" cy="11" r="2"/></svg><span>Swim</span></button>
+    </div>
+    <button id="feed" class="feed" aria-label="魚に小さなごはんをあげる"><svg viewBox="0 0 24 24"><circle cx="8" cy="7" r="1"/><circle cx="16" cy="6" r="1"/><circle cx="12" cy="12" r="1"/><path d="M3 17q3-2 6 0t6 0 6 0"/></svg></button>
+    <p class="signature">10 <span>/</span> for Sumie</p>
+  </footer>
+  <noscript><div class="panel failure">この水槽はJavaScriptをオンにして開いてね。</div></noscript>
+  <script type="module">
+    import('./ocean.js').catch(error=>{console.error(error);document.querySelector('#loading').hidden=true;document.querySelector('#failure').hidden=false;});
+    document.querySelector('#reload').onclick=()=>location.reload();
+  </script>
+</body>
+</html>

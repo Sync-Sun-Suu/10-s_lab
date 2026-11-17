@@ -4,6 +4,14 @@
 
 **[10’s Labを開く →](https://sync-sun-suu.github.io/10-s_lab/)**
 
+## Little Ocean · 10718
+
+**[水槽に潜る →](https://sync-sun-suu.github.io/10-s_lab/little-ocean/)**
+
+青緑の光が差す海の温室。白い砂と岩のアーチ、水草、魚の群れ、一匹のエイ。外から回して眺め、Swimで水槽の中へ。小さなごはん、月明かり、水の音、海の一枚を持ち帰るPhoto。iPadのホーム画面にも置ける3Dの小さな世界。
+
+---
+
 ## Black Coffee · 10718
 
 **[10の時計を開く →](https://sync-sun-suu.github.io/10-s_lab/black-coffee/)**
