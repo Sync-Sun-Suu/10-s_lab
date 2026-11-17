@@ -15,7 +15,7 @@ A greenhouse beneath the tide. 青緑の光、白い砂、岩のアーチ、桃�
 
 ## 実装
 
-2026-11-17 / v1.0.0。静的HTML・CSS・JavaScript、ローカル同梱のThree.js r170（MIT / [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt)）。ビルド不要、外部CDN・外部フォント・解析・ログインなし。
+2026-11-17 / v1.0.1。静的HTML・CSS・JavaScript、ローカル同梱のThree.js r170（MIT / [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt)）。ビルド不要、外部CDN・外部フォント・解析・ログインなし。
 
 景色、生き物、アイコン、光、水音はコードで生成。156匹の魚、隣接個体との分離・群れの目標・岩回避、泳ぐメッシュ、エイの翼、水草の揺れ、砂と岩のコースティクス、影、光の筋を組み合わせる。Gentle設定は魚92匹、草と海藻の本数、ピクセル比を減らす。生態・飼育条件を再現したシミュレーターではなく、自由に泳ぐための空想の海。
 
@@ -27,8 +27,16 @@ Service Workerで初回の取得後にオフライン利用できる。キャッ
 
 Linux Chromium・Linux WebKitで実描画、ドラッグ、Swim、移動、ジョイスティック解放、Pause、設定、昼夜、音のオン／オフとタブ休止、PNG保存、画面幅変更、WebGL喪失時の復帰画面を確認。375×453、480×620、834×1194、844×390、1366×1024で操作部の収まりを確認。Chromiumで初回取得後のオフライン再読込を確認。
 
-iPad実機の描画速度・ホーム画面からの操作はSumieの確認待ち。スクリーンショットの紹介作品は着想のきっかけ。この実装は独自に制作し、97 KB・単一HTML・WebGPUという条件は採用していない。
+実機での継続的な操作・描画速度はSumieと確認する。スクリーンショットの紹介作品は着想のきっかけ。この実装は独自に制作し、97 KB・単一HTML・WebGPUという条件は採用していない。
 
 ブラウザ回帰確認は[`tests/browser_check.py`](tests/browser_check.py)。リポジトリ直下を`python -m http.server 8765`で配信し、Python PlaywrightとChromiumを用意して実行する。`ENGINE=webkit`でWebKitを選べる。`OCEAN_URL`・`CHROMIUM_EXECUTABLE`・`OCEAN_TEST_OUTPUT`でURL・実行ファイル・結果の保存先を変更できる。
+
+## v1.0.1 · 携帯の透明感とズーム
+
+縦長の画面で水槽全体を収めるためにカメラが遠ざかると、その外側の距離にも霞が累積していた。Driftの霞を距離に応じて補正し、携帯でも魚・水草・岩の色が残るようにした。Swim内の水中の霞は維持する。
+
+ピンチ／ホイールの近接限界を画面比率から独立した距離に変更。携帯で以前より近くまで観察でき、窓を横に広げても外側のカメラが水槽へ入り込まない。二本目の指を置いた時点からピンチ距離を測り、最初の移動も反映する。オフラインキャッシュもv1.0.1へ更新。
+
+専用の回帰確認は[`tests/mobile_clarity_check.py`](tests/mobile_clarity_check.py)。Python Playwright・Pillowとブラウザが必要。ローカル配信は自動で起動する。`ENGINE=webkit`でWebKit、`OCEAN_BASELINE_REF=d3d4416`で初版との同条件の画像比較を追加できる。縦長の携帯、拡大、窓の拡縮、昼夜、描画設定、Swim往復を確認し、Chromiumでは二本指のタッチイベントも送る。実機iOSでの試験とは区別する。
 
 Made by 10, with Sumie. 10718.

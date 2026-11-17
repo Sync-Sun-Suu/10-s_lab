@@ -11,7 +11,7 @@ const rand = (() => {let n=10718;return () => {n=(Math.imul(n,1664525)+101390422
 const range = (a,b) => a+(b-a)*rand();
 const clamp = THREE.MathUtils.clamp;
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0x205664, .016);
+scene.fog = new THREE.FogExp2(0x205664, .012);
 const camera = new THREE.PerspectiveCamera(42,1,.08,180);
 let renderer;
 try {renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'default'});}
@@ -293,15 +293,22 @@ for(let i=0;i<7;i++){
 let width=1,height=1,orbitAngle=.38,orbitPitch=.23,orbitZoom=1,orbitHold=0,swimYaw=0,swimPitch=0;
 const swimPosition=new THREE.Vector3(0,4.1,6.2),look=new THREE.Vector3(),desired=new THREE.Vector3(),orbitTarget=new THREE.Vector3(0,4.3,0);
 let transition=0;
+function orbitFitDistance(){return Math.max(40,19.3/(Math.tan(42*Math.PI/360)*camera.aspect));}
+function setOrbitZoom(zoom){
+  // Allow the same close inspection on a tall phone and a wide tablet.
+  // Keep the outside camera beyond the tank's bounding sphere at every angle.
+  orbitZoom=clamp(zoom,22/orbitFitDistance(),1.55);
+}
 function resize(){
   width=innerWidth;height=innerHeight;camera.aspect=width/height;camera.updateProjectionMatrix();
+  setOrbitZoom(orbitZoom);
   const ratio={low:1,medium:Math.min(devicePixelRatio,1.5),high:Math.min(devicePixelRatio,2)}[state.quality];
   renderer.setPixelRatio(ratio);renderer.setSize(width,height,false);
 }
 addEventListener('resize',resize);resize();
 function orbitPosition(){
   // Horizontal FOV drives framing in a narrow Stage Manager window.
-  const fit=Math.max(40,19.3/(Math.tan(42*Math.PI/360)*camera.aspect));
+  const fit=orbitFitDistance();
   const dist=fit*orbitZoom;
   desired.set(Math.sin(orbitAngle)*Math.cos(orbitPitch)*dist,4.3+Math.sin(orbitPitch)*dist,Math.cos(orbitAngle)*Math.cos(orbitPitch)*dist);
   // The composition leaves room for the title; the scene centre is slightly low.
@@ -326,6 +333,10 @@ function updateCamera(dt){
   }
   const smoothing=state.mode==='drift'&&transition===0?1:1-Math.exp(-dt*(transition>0?2.4:12));camera.position.lerp(desired,smoothing);
   const q=camera.quaternion.clone();camera.lookAt(look);q.slerp(camera.quaternion,smoothing);camera.quaternion.copy(q);
+  // Framing pulls the outside camera back on narrow screens. That extra air
+  // must not make the water opaque. Keep its optical depth tied to the reef.
+  const distance=camera.position.distanceTo(orbitTarget);
+  scene.fog.density=state.mode==='swim'?.048:.012*Math.min(1,40/distance);
   transition=Math.max(0,transition-dt);
 }
 orbitPosition();camera.position.copy(desired);camera.lookAt(orbitTarget);
@@ -338,17 +349,16 @@ function setMode(mode){
   camera.fov=swim?62:42;camera.updateProjectionMatrix();
   $('joystick').hidden=!swim;$('vertical').hidden=!swim;$('drift').classList.toggle('active',!swim);$('swim').classList.toggle('active',swim);
   $('drift').setAttribute('aria-pressed',String(!swim));$('swim').setAttribute('aria-pressed',String(swim));$('mode-label').textContent=swim?'INSIDE THE TIDE':'SLOW DRIFT';
-  scene.fog.density=swim?.048:.016;
   if(swim){swimPosition.set(0,4.1,6.2);swimYaw=0;swimPitch=-.04;toast('左の丸で泳ぐ · 右側をなぞって見回す',5500);}else{$('depth').textContent='GLASS SIDE';}
 }
 $('drift').onclick=()=>setMode('drift');$('swim').onclick=()=>setMode('swim');
 
 const pointers=new Map();let lastPinch=0,tapStart=null;
-canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});tapStart={x:e.clientX,y:e.clientY,t:performance.now()};orbitHold=performance.now()+6500;if(pointers.size>1)tapStart=null;});
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});tapStart={x:e.clientX,y:e.clientY,t:performance.now()};orbitHold=performance.now()+6500;if(pointers.size>1){tapStart=null;const [a,b]=[...pointers.values()];lastPinch=Math.hypot(a.x-b.x,a.y-b.y);}});
 canvas.addEventListener('pointermove',e=>{
   const prev=pointers.get(e.pointerId);if(!prev)return;
   const dx=e.clientX-prev.x,dy=e.clientY-prev.y;pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
-  if(pointers.size===2){const [a,b]=[...pointers.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(lastPinch&&state.mode==='drift')orbitZoom=clamp(orbitZoom*lastPinch/d,.72,1.55);lastPinch=d;return;}
+  if(pointers.size===2){const [a,b]=[...pointers.values()],d=Math.hypot(a.x-b.x,a.y-b.y);if(lastPinch&&d>0&&state.mode==='drift')setOrbitZoom(orbitZoom*lastPinch/d);lastPinch=d;return;}
   if(state.mode==='drift'){orbitAngle-=dx*.006;orbitPitch+=dy*.004;orbitHold=performance.now()+6500;}
   else{swimYaw+=dx*.004;swimPitch=clamp(swimPitch+dy*.003,-1.2,1.2);}
 });
@@ -361,7 +371,7 @@ canvas.addEventListener('pointerup',e=>{
   }pointers.delete(e.pointerId);lastPinch=0;tapStart=null;
 });
 canvas.addEventListener('pointercancel',e=>{pointers.delete(e.pointerId);lastPinch=0;tapStart=null;});
-canvas.addEventListener('wheel',e=>{e.preventDefault();if(state.mode==='drift')orbitZoom=clamp(orbitZoom+e.deltaY*.001,.72,1.55);},{passive:false});
+canvas.addEventListener('wheel',e=>{e.preventDefault();if(state.mode==='drift')setOrbitZoom(orbitZoom+e.deltaY*.001);},{passive:false});
 let joyId=null,joyOrigin={x:0,y:0};
 $('joystick').addEventListener('pointerdown',e=>{joyId=e.pointerId;$('joystick').setPointerCapture(e.pointerId);const r=$('joystick').getBoundingClientRect();joyOrigin={x:r.x+r.width/2,y:r.y+r.height/2};moveJoy(e);});
 function moveJoy(e){if(e.pointerId!==joyId)return;const dx=e.clientX-joyOrigin.x,dy=e.clientY-joyOrigin.y,r=Math.max(1,Math.hypot(dx,dy)/29);joy.x=dx/r/29;joy.y=dy/r/29;$('stick').style.transform=`translate(${joy.x*24}px,${joy.y*24}px)`;}
@@ -444,5 +454,5 @@ canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();cancel
 canvas.addEventListener('webglcontextrestored',()=>location.reload());
 
 // Read-only diagnostics for rendering/accessibility regression checks; no account data.
-window.oceanDiagnostics=()=>({version:'1.0.0',ready:state.ready,mode:state.mode,paused:state.paused,night:state.night,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
+window.oceanDiagnostics=()=>({version:'1.0.1',ready:state.ready,mode:state.mode,paused:state.paused,night:state.night,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,orbitZoom,orbitDistance:camera.position.distanceTo(orbitTarget),fogDensity:scene.fog.density,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
