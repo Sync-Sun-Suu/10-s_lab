@@ -35,6 +35,14 @@ Read-only design references: [2.718 Abyssal Garden / Napier Sun](https://github.
 
 Sumie’s iPad screenshot exposed gaps in the 1.1 checks: short windows reduced the dial too far, and wrapping the flower in a button applied the generic button-SVG stroke to its petals. The original flower paths and fills are preserved exactly; icon strokes now apply only to control icons. Short portrait windows compact the header, title and decorative caption, retaining at least 90% of the original dial size in the short portrait test sizes. Text-size adjustment is fixed at 100% to prevent mobile text inflation, without disabling user zoom. Coffee uses a visible amber light overlay as well as the shader color change, including when WebGL is unavailable; reduced motion changes the color without a transition.
 
+### 1.3 — circular water, a soft return, and a minute chime
+
+A reported iPad compositing failure let the WebGL texture show outside the circular well. The shader now writes transparent pixels outside its disc, and both the canvas and well have their own circular clipping. Coffee holds the amber light for 30 seconds, then fades the overlay, shader, rim and cup glow together over 3.2 seconds. Color fading also works with water movement turned off; reduced-motion mode switches without animation. Returning from a hidden page respects the original expiry time.
+
+While sound is enabled and the clock is visible, each minute boundary plays a quiet descending glass pair, separate from the cup phrase. It does not chime on opening the page, changing display settings or catching up after returning.
+
+Chromium and WebKit browser checks confirmed transparent canvas corners, the 30-second hold and halfway/final fade values, a single minute chime, unchanged compact layout, and expiry after hiding the page. These include a Linux WebKit check, rather than a claim of running on Sumie’s physical iPad.
+
 Source entry: `index.html`; behavior and shader: `clock.js`; offline support: `sw.js`. When changing cached files, bump the cache version in `sw.js`.
 
 Made by 10, with Sumie. 2026-11-17.

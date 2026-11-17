@@ -24,8 +24,14 @@
     $('zone-label').textContent = prefs.timezone === 'Asia/Tokyo' ? 'JAPAN · JST' : prefs.timezone === 'UTC' ? 'UTC' : 'LOCAL TIME';
   }
   let lastSecond = '', lastMinute = '', lastDay = '';
+  let previousClockStamp = Date.now(), chimeReady = false;
   function updateClock() {
     const now = new Date();
+    const stamp = now.getTime();
+    const crossedMinute = Math.floor(stamp / 60000) > Math.floor(previousClockStamp / 60000)
+      && stamp - previousClockStamp <= 2000 && stamp % 60000 < 1500;
+    previousClockStamp = stamp;
+    if (chimeReady && crossedMinute && !document.hidden) minuteChime();
     const p = Object.fromEntries(timeFormatter.formatToParts(now).filter(x => x.type !== 'literal').map(x => [x.type, x.value]));
     const h = Number(p.hour) % 24;
     const minute = `${p.year}-${p.month}-${p.day}-${p.hour}:${p.minute}:${prefs.hour12}`;
@@ -81,9 +87,9 @@
 
   // Procedural ink and reflected light; no image downloads or GPU libraries.
   const canvas = $('liquid');
-  let gl = canvas.getContext('webgl', { alpha: false, antialias: false, powerPreference: 'low-power', preserveDrawingBuffer: false });
+  let gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false, powerPreference: 'low-power', preserveDrawingBuffer: false });
   let program, uniforms, raf = 0, lastFrame = 0, elapsed = 0, lost = false;
-  let warmth = 0, warmthTarget = 0;
+  let warmth = 0, brewAnimation = null, brewRaf = 0, brewLastDraw = 0;
   let touch = [-5, -5, -100];
   const vertex = 'attribute vec2 position; varying vec2 uv; void main(){uv=position*.5+.5;gl_Position=vec4(position,0.,1.);}';
   const fragment = `
@@ -96,7 +102,11 @@
     float noise(vec2 p){vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
     float fbm(vec2 p){float n=0.,a=.5;mat2 m=mat2(.8,-.6,.6,.8);for(int i=0;i<4;i++){n+=a*noise(p);p=m*p*2.13+1.7;a*=.5;}return n;}
     void main(){
-      vec2 p=uv*2.-1.;float r=length(p);float theta=atan(p.y,p.x);
+      vec2 p=uv*2.-1.;float r=length(p);
+      // Transparent pixels outside the disc also protect against Safari's
+      // composited-canvas overflow clipping failures.
+      if(r>=1.){gl_FragColor=vec4(0.);return;}
+      float theta=atan(p.y,p.x);
       float age=time-touch.z;
       float dist=distance(p,touch.xy);
       float wave=sin(dist*27.-age*6.)*exp(-dist*2.1)*exp(-max(0.,age)*.75)*step(0.,age);
@@ -122,7 +132,7 @@
       color+=vec3(.4,.38,.22)*wave*.18;
       color*=1.-smoothstep(.87,1.04,r)*.6;
       color+= (hash(uv*1500.)-.5)*.009;
-      gl_FragColor=vec4(color,1.);
+      gl_FragColor=vec4(color,1.-smoothstep(.994,1.,r));
     }`;
   function shader(type, source) {
     const s = gl.createShader(type); gl.shaderSource(s, source); gl.compileShader(s);
@@ -158,7 +168,6 @@
     if (!gl || lost || !prefs.motion || reduced.matches || document.hidden) { raf = 0; return; }
     if (timestamp - lastFrame >= 1000 / 24) {
       elapsed += Math.min((timestamp - (lastFrame || timestamp)) / 1000, .1);
-      warmth += (warmthTarget - warmth) * .045;
       lastFrame = timestamp; drawVisual();
     }
     raf = requestAnimationFrame(animate);
@@ -172,6 +181,7 @@
 
   // Audio is created only from the sound button; quiet, generated locally, never autoplayed.
   let audio = null, soundEnabled = false, master = null, noiseSource = null, noiseGain = null;
+  chimeReady = true;
   async function initAudio() {
     const Audio = window.AudioContext || window.webkitAudioContext;
     if (!Audio) return false;
@@ -195,6 +205,23 @@
     osc.connect(gain); gain.connect(master); osc.start(at); osc.stop(at + 2.6);
     osc.onended = () => { osc.disconnect(); gain.disconnect(); };
   }
+  // A descending glass double note, separate from the cup's four-note phrase.
+  function minuteChime() {
+    if (!soundEnabled || !audio || audio.state !== 'running' || document.hidden) return;
+    const at = audio.currentTime;
+    for (const [frequency, delay] of [[783.99, 0], [587.33, .24]]) {
+      for (const [ratio, level, tail] of [[1, .065, 2.8], [2.756, .012, 1.4], [4.13, .004, .8]]) {
+        const osc = audio.createOscillator(), gain = audio.createGain();
+        osc.type = 'sine'; osc.frequency.value = frequency * ratio;
+        const start = at + delay;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(level, start + .009);
+        gain.gain.exponentialRampToValueAtTime(.0001, start + tail);
+        osc.connect(gain); gain.connect(master); osc.start(start); osc.stop(start + tail + .05);
+        osc.onended = () => { osc.disconnect(); gain.disconnect(); };
+      }
+    }
+  }
   $('sound').addEventListener('click', async () => {
     try {
       if (!soundEnabled) { if (!await initAudio()) { announce('このブラウザでは音を再生できないみたい。時計はそのまま使えるよ。'); return; } soundEnabled = true; master.gain.setTargetAtTime(.38, audio.currentTime, .35); note(261.63); note(392, .25); }
@@ -203,7 +230,7 @@
     } catch (_) { announce('音を始められなかった。もう一度、音のボタンに触れてね。'); }
   });
 
-  let messageTimer, breakTimer, coffeeBreak = false, breakCount = 0;
+  let messageTimer, breakTimer, breakEndsAt = 0, coffeeBreak = false, breakCount = 0;
   const messages = [
     ['Sumie、少しだけコーヒーブレイク。', 'THE DARKER, THE SWEETER.'],
     ['濃くしたよ。甘さのほうを。', 'BLACK COFFEE, AS PROMISED.'],
@@ -228,10 +255,43 @@
     announce('持ってるよ。今日も。', 'ONE LITTLE FLOWER, STILL HERE.');
     note(659.25, 0, .055); note(523.25, .22, .04);
   });
-  function setBrew(active) {
-    $('world').classList.toggle('brewing', active);
-    warmthTarget = active ? 1 : 0;
-    if (!prefs.motion || reduced.matches) { warmth = warmthTarget; drawVisual(); }
+  // One wall-clock envelope drives both the light overlay and the shader.
+  // Water can be still while the color softly leaves the cup.
+  function updateBrewColor() {
+    if (!brewAnimation) return;
+    const progress = brewAnimation.duration ? Math.min(1, Math.max(0, (Date.now() - brewAnimation.at) / brewAnimation.duration)) : 1;
+    const eased = progress * progress * (3 - 2 * progress);
+    warmth = brewAnimation.from + (brewAnimation.to - brewAnimation.from) * eased;
+    $('world').style.setProperty('--brew', warmth.toFixed(4));
+    if ((!prefs.motion || reduced.matches || progress === 1) && (progress === 1 || performance.now() - brewLastDraw >= 1000 / 24)) {
+      drawVisual(); brewLastDraw = performance.now();
+    }
+    if (progress === 1) {
+      brewAnimation = null;
+      if (warmth === 0) $('world').classList.remove('brewing');
+    }
+  }
+  function animateBrew() {
+    brewRaf = 0; updateBrewColor();
+    if (brewAnimation && !document.hidden) brewRaf = requestAnimationFrame(animateBrew);
+  }
+  function setBrew(active, at = Date.now()) {
+    cancelAnimationFrame(brewRaf); brewRaf = 0;
+    updateBrewColor();
+    if (active) $('world').classList.add('brewing');
+    brewAnimation = { from: warmth, to: active ? 1 : 0, at, duration: reduced.matches ? 0 : active ? 1000 : 3200 };
+    animateBrew();
+  }
+  function finishCoffee(at = Date.now()) {
+    coffeeBreak = false; breakEndsAt = 0;
+    clearTimeout(breakTimer); setBrew(false, at);
+    $('coffee').setAttribute('aria-pressed', 'false');
+    $('caption').textContent = 'a little closer, a little sweeter.';
+  }
+  function resumeCoffee() {
+    updateBrewColor();
+    if (coffeeBreak && Date.now() >= breakEndsAt) finishCoffee(breakEndsAt);
+    else if (brewAnimation && !brewRaf) animateBrew();
   }
   $('coffee').addEventListener('click', () => {
     coffeeBreak = !coffeeBreak; $('coffee').setAttribute('aria-pressed', String(coffeeBreak));
@@ -242,8 +302,9 @@
       if ((breakCount - 1) % messages.length === 3) showTulip();
       $('caption').textContent = 'the darker, the sweeter.';
       note(261.63); note(329.63, .25); note(392, .6); note(523.25, 1.15, .075);
-      breakTimer = setTimeout(() => { coffeeBreak = false; setBrew(false); $('coffee').setAttribute('aria-pressed', 'false'); $('caption').textContent = 'a little closer, a little sweeter.'; }, 30000);
-    } else { $('letter').classList.remove('visible'); $('caption').textContent = 'a little closer, a little sweeter.'; }
+      breakEndsAt = Date.now() + 30000;
+      breakTimer = setTimeout(() => finishCoffee(breakEndsAt), 30000);
+    } else { breakEndsAt = 0; $('letter').classList.remove('visible'); $('caption').textContent = 'a little closer, a little sweeter.'; }
   });
   let taps = 0;
   function rippleAt(clientX, clientY) {
@@ -280,7 +341,7 @@
     document.body.classList.toggle('still', !prefs.motion || reduced.matches);
     $('seconds').hidden = !prefs.seconds; $('second-orbit').hidden = !prefs.seconds;
     $('focus').setAttribute('aria-pressed', String(prefs.focus)); $('focus').setAttribute('aria-label', prefs.focus ? '全体のデザインに戻す' : '時刻を大きく眺める');
-    if (prefs.motion && !reduced.matches) startVisual(); else { stopVisual(); warmth = warmthTarget; drawVisual(); }
+    if (prefs.motion && !reduced.matches) startVisual(); else { stopVisual(); drawVisual(); }
     if (!prefs.awake && wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
     if (!prefs.awake) $('awake-status').textContent = '';
     requestWake();
@@ -297,11 +358,12 @@
   window.addEventListener('keydown', event => { if (event.key === 'Escape' && !$('sheet').open && prefs.focus) { prefs.focus = false; syncSettings(); } });
   if (reduced.addEventListener) reduced.addEventListener('change', syncSettings);
   document.addEventListener('visibilitychange', () => {
+    previousClockStamp = Date.now();
     scheduleClock();
-    if (document.hidden) { stopVisual(); if (audio) audio.suspend().catch(() => {}); }
-    else { startVisual(); requestWake(); if (audio && soundEnabled) audio.resume().catch(() => {}); }
+    if (document.hidden) { stopVisual(); cancelAnimationFrame(brewRaf); brewRaf = 0; if (audio) audio.suspend().catch(() => {}); }
+    else { resumeCoffee(); startVisual(); requestWake(); if (audio && soundEnabled) audio.resume().catch(() => {}); }
   });
-  window.addEventListener('pageshow', () => { scheduleClock(); requestWake(); });
+  window.addEventListener('pageshow', () => { previousClockStamp = Date.now(); scheduleClock(); resumeCoffee(); requestWake(); });
   if (standalone) $('install-help').hidden = true;
   if (prefs.flower) showTulip();
   syncSettings();
