@@ -1,5 +1,5 @@
-const CACHE='little-ocean-v1.2.1';
-const FILES=['./','./index.html','./style.css','./ocean.js','./vendor/three.module.min.js','./icon.svg','./icon-192.png','./icon-512.png','./manifest.webmanifest'];
+const CACHE='little-ocean-v1.3.0';
+const FILES=['./','./index.html','./style.css','./ocean.js','./pearl.js','./vendor/three.module.min.js','./icon.svg','./icon-192.png','./icon-512.png','./manifest.webmanifest'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith('little-ocean-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{

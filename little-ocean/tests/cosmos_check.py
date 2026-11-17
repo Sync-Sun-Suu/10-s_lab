@@ -1,4 +1,4 @@
-"""Render and exercise the three light modes in Chromium or WebKit.
+"""Render and exercise the four light modes in Chromium or WebKit.
 
 Requires Python Playwright, Pillow and the selected browser. Starts its own
 local server. ENGINE, CHROMIUM_EXECUTABLE and OCEAN_TEST_OUTPUT are optional.
@@ -35,11 +35,31 @@ with sync_playwright() as p:
     page.locator('#light').click();page.wait_for_function('oceanDiagnostics().moon>.99',timeout=90000)
     assert d()['lighting']=='moon' and d()['glowingFish']==0
     capture('moon-phone')
-    page.locator('#light').click();page.wait_for_function('oceanDiagnostics().cosmos>.99',timeout=90000)
+    page.locator('#light').click();page.wait_for_function('oceanDiagnostics().cosmos>.99999 && oceanDiagnostics().moon>.99999',timeout=90000)
     assert d()['lighting']=='cosmos' and d()['glowingFish']==156 and d()['stars']==1400,d()
     assert page.locator('#light-mode').input_value()=='cosmos'
     assert 'Cosmos' in page.locator('#light').get_attribute('aria-label')
     capture('cosmos-phone')
+    assert not d()['pearl']['active']
+    # The new garden is a fourth choice, while the original Cosmos stays available.
+    page.locator('#light').click()
+    page.wait_for_function('oceanDiagnostics().pearl.amount>.9999',timeout=90000)
+    assert d()['lighting']=='pearl' and d()['pearl']['active'] and d()['glowingFish']==156
+    assert d()['pearl']['kelp']==8 and d()['pearl']['grass']==136
+    capture('pearl-phone')
+    page.locator('#settings').click();page.locator('#light-mode').select_option('cosmos');page.keyboard.press('Escape')
+    page.wait_for_function('oceanDiagnostics().pearl.amount<.0001',timeout=90000)
+    assert not d()['pearl']['active']
+    capture('cosmos-return')
+    # At the same paused moment, the original view survives a Pearl round trip.
+    from PIL import Image, ImageChops, ImageStat
+    a=Image.open(out/f'{name}-cosmos-phone.png').convert('RGB')
+    b=Image.open(out/f'{name}-cosmos-return.png').convert('RGB')
+    box=(0,int(a.height*.35),a.width,int(a.height*.82))
+    error=max(ImageStat.Stat(ImageChops.difference(a.crop(box),b.crop(box))).mean)
+    assert error<1.0,('Cosmos changed after Pearl',error)
+    results['cosmos_round_trip_mean_error']=error
+    page.locator('#light').click();page.wait_for_function('oceanDiagnostics().pearl.amount>.9999',timeout=90000)
     # The same scene can be inspected closely and then resized without entering the tank.
     if name=='chromium':
         cdp=context.new_cdp_session(page)
@@ -50,23 +70,23 @@ with sync_playwright() as p:
     else:
         page.mouse.move(200,440);page.mouse.wheel(0,-780)
     page.wait_for_function('oceanDiagnostics().orbitDistance<26',timeout=90000)
-    capture('cosmos-close')
+    capture('pearl-close')
     page.set_viewport_size({'width':834,'height':1194})
     page.locator('#drift').click();page.wait_for_function('oceanDiagnostics().orbitZoom===1')
-    capture('cosmos-ipad')
+    capture('pearl-ipad')
     page.set_viewport_size({'width':1366,'height':1024})
-    capture('cosmos-desktop')
+    capture('pearl-desktop')
     page.set_viewport_size({'width':390,'height':844})
     page.locator('#swim').click();page.wait_for_function('oceanDiagnostics().transition===0',timeout=90000)
-    assert d()['fov']==62 and d()['lighting']=='cosmos'
-    capture('cosmos-swim')
+    assert d()['fov']==62 and d()['lighting']=='pearl'
+    capture('pearl-swim')
     # Photo must include the dark sky and stars as well as the glowing reef.
     page.locator('#settings').click()
     with page.expect_download() as info:page.locator('#photo').click()
-    info.value.save_as(str(out/f'{name}-cosmos-photo.png'))
-    assert (out/f'{name}-cosmos-photo.png').stat().st_size>5000
+    info.value.save_as(str(out/f'{name}-pearl-photo.png'))
+    assert (out/f'{name}-pearl-photo.png').stat().st_size>5000
     page.locator('#quality').select_option('low')
-    page.wait_for_function('oceanDiagnostics().glowingFish===92 && oceanDiagnostics().stars===600')
+    page.wait_for_function('oceanDiagnostics().glowingFish===92 && oceanDiagnostics().stars===600 && oceanDiagnostics().pearl.kelp===6 && oceanDiagnostics().pearl.grass===89')
     page.locator('#pause').click();page.keyboard.press('Escape')
     page.wait_for_function('oceanDiagnostics().time>.2',timeout=90000)
     page.locator('#feed').click();assert d()['feeding']>10
@@ -75,13 +95,14 @@ with sync_playwright() as p:
     # Food is uploaded lazily on its first visible frame. Count after that warmup.
     geometries=d()['geometryCount']
     # Selection, header cycle and return to Day keep all controls in agreement.
-    for mode in ['day','cosmos','moon','cosmos','day','moon','cosmos']:
+    for mode in ['day','pearl','cosmos','moon','pearl','cosmos','day','moon','pearl']:
         page.locator('#light-mode').select_option(mode)
         assert d()['lighting']==mode
         assert page.locator('#light').get_attribute('data-mode')==mode
     page.keyboard.press('Escape');page.locator('#light').click()
     page.wait_for_function('oceanDiagnostics().cosmos<.0001 && oceanDiagnostics().moon<.0001',timeout=90000)
     assert d()['lighting']=='day' and d()['glowingFish']==0 and d()['stars']==0
+    assert not d()['pearl']['active']
     assert d()['geometryCount']==geometries,d()
     page.locator('#drift').click();page.wait_for_function('oceanDiagnostics().transition===0',timeout=90000)
     for w,h in [(375,453),(844,390),(430,932)]:
@@ -95,6 +116,6 @@ with sync_playwright() as p:
     assert not errors,errors
     results['final']=d();results['console_errors']=errors
     out.joinpath(f'{name}-results.json').write_text(json.dumps(results,indent=2))
-    print(name,'PASS: light cycle, emission, close view, Swim, photo, quality, feed, pause, resize, stable geometry; no console errors.',flush=True)
+    print(name,'PASS: four light modes, Cosmos round-trip image, Pearl close view, Swim, photo, quality, feed, pause, resize, stable geometry; no console errors.',flush=True)
     browser.close()
 server.shutdown()

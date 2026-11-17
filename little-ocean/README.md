@@ -9,13 +9,13 @@ A greenhouse beneath the tide. 青緑の光、白い砂、岩のアーチ、桃�
 - **Drift**：水槽を眺める。ドラッグで回し、ピンチ／ホイールで近づく。もう一度押すと最初の眺めへ戻る。
 - **Swim**：水槽の中へ。左の丸で移動、画面をなぞって見回す。右の上下ボタンで深さを変える。キーボードはWASD／矢印、Q・Eで上下。
 - 下の粒を押すと小さなごはん。魚が近くに集まる。
-- 光のボタンで **Day → Moon → Cosmos**。宇宙では魚が星のように光る。設定のLightからも選べる。スピーカーで水の音、最初は無音。
+- 光のボタンで **Day → Moon → Cosmos → Pearl**。Cosmosでは魚が星のように光る。Pearlでは岩や葉も透き通り、淡い真珠色の輪郭が浮かぶ。設定のLightからも選べる。スピーカーで水の音、最初は無音。
 - 設定からPause、描画の細かさ、Photo、画面拡大。ホーム画面への追加に対応。
 - 海の底に置いてきた、小さなコーヒーカップも探してみて。
 
 ## 実装
 
-2026-11-17 / v1.2.1。静的HTML・CSS・JavaScript、ローカル同梱のThree.js r170（MIT / [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt)）。ビルド不要、外部CDN・外部フォント・解析・ログインなし。
+2026-11-17 / v1.3.0。静的HTML・CSS・JavaScript、ローカル同梱のThree.js r170（MIT / [`vendor/THREE-LICENSE.txt`](vendor/THREE-LICENSE.txt)）。ビルド不要、外部CDN・外部フォント・解析・ログインなし。
 
 景色、生き物、アイコン、光、水音はコードで生成。156匹の魚、隣接個体との分離・群れの目標・岩回避、泳ぐメッシュ、エイの翼、水草の揺れ、砂と岩のコースティクス、影、光の筋を組み合わせる。Gentle設定は魚92匹、草と海藻の本数、ピクセル比を減らす。生態・飼育条件を再現したシミュレーターではなく、自由に泳ぐための空想の海。
 
@@ -30,6 +30,14 @@ Linux Chromium・Linux WebKitで実描画、ドラッグ、Swim、移動、ジ�
 実機での継続的な操作・描画速度はSumieと確認する。スクリーンショットの紹介作品は着想のきっかけ。この実装は独自に制作し、97 KB・単一HTML・WebGPUという条件は採用していない。
 
 ブラウザ回帰確認は[`tests/browser_check.py`](tests/browser_check.py)。リポジトリ直下を`python -m http.server 8765`で配信し、Python PlaywrightとChromiumを用意して実行する。`ENGINE=webkit`でWebKitを選べる。`OCEAN_URL`・`CHROMIUM_EXECUTABLE`・`OCEAN_TEST_OUTPUT`でURL・実行ファイル・結果の保存先を変更できる。
+
+## v1.3.0 · Pearl
+
+元のCosmosをそのまま残し、4番目の光としてPearlを追加。岩、葉、サンゴ、海底、コーヒーカップが透け、真珠色と淡いシャンパン色の輪郭が浮かぶ。背景は深い紺、魚の光はCosmosと共通。泡は加えていない。
+
+[`pearl.js`](pearl.js)で独立して制作。岩は外周の光、葉は縁の細い線で表現し、格子模様を使わない。水草はPearl専用の間隔を空けた配置（海藻8本・草136本、Gentleは6本・89本）。元の水草・材質を保持し、モードを戻すと復帰する。新しい乱数生成や魚の再配置は行わない。透明な面は深度を書き込まず、奥を泳ぐ魚も見える。
+
+[`tests/cosmos_check.py`](tests/cosmos_check.py)で4モードの切替と、同じ停止時刻のCosmos→Pearl→Cosmosの画像比較、近接・Swim・Photo・ごはん・Pause・品質切替・窓幅変更・繰り返し切替後の形状数を確認する。キャッシュは`little-ocean-v1.3.0`で、新しいモジュールもオフライン保存の対象に含める。
 
 ## v1.2.1 · Original Cosmos
 

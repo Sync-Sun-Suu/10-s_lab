@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.min.js';
+import {createPearlGarden} from './pearl.js';
 
 // Little Ocean — original procedural scene, 10 / Sumie, 2026-11-17.
 // Metres are scene units. The aquarium is a small imagined reef, not a husbandry model.
@@ -326,6 +327,7 @@ const skyMat=new THREE.ShaderMaterial({transparent:true,depthWrite:false,depthTe
   vertexShader:`uniform float uPixelRatio;attribute float aSeed;varying float vSeed;void main(){vSeed=aSeed;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);gl_PointSize=(1.+pow(aSeed,5.)*2.8)*uPixelRatio;}`,
   fragmentShader:`uniform float uTime,uCosmos;varying float vSeed;void main(){float r=length(gl_PointCoord-.5)*2.;float a=1.-smoothstep(.1,1.,r);vec3 c=mix(vec3(.52,.65,1.),vec3(1.,.84,.67),vSeed);float pulse=.65+.18*sin(uTime*.5+vSeed*70.);gl_FragColor=vec4(c,a*(.25+vSeed*.5)*pulse*uCosmos);}`});
 const starSky=new THREE.Points(skyGeo,skyMat);starSky.frustumCulled=false;starSky.visible=false;scene.add(starSky);
+const pearlGarden=createPearlGarden({reef,clock,kelps,blades,plinth,under,materials:{rock:rockMat,sand:sandMat,coral:coralMat,cup:cupMat,gold:goldMat,coffee:coffee.material}});
 const fogDay=new THREE.Color(0x205664),fogMoon=new THREE.Color(0x143445),fogCosmos=new THREE.Color(0x080d24);
 function updateCosmos(){
   const active=cosmos.value>.001;fishGlow.visible=starSky.visible=active;
@@ -460,18 +462,19 @@ async function ensureAudio(){
 }
 function chime(){if(!state.sound||!audio)return;for(let i=0;i<2;i++){const o=audio.createOscillator(),g=audio.createGain(),t=audio.currentTime+i*.19;o.type='sine';o.frequency.value=[659.25,987.77][i];g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.025,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+1.7);o.connect(g);g.connect(audioGain);o.start(t);o.stop(t+1.8);}}
 $('sound').onclick=async()=>{try{await ensureAudio();state.sound=!state.sound;audioGain.gain.setTargetAtTime(state.sound?.28:0,audio.currentTime,.7);$('sound').setAttribute('aria-pressed',String(state.sound));$('sound').setAttribute('aria-label',state.sound?'水の音をオフ':'水の音をオン');$('sound').innerHTML=state.sound?'<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM16 8q5 4 0 8m3-11q8 7 0 14"/></svg>':'<svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4zM16 9l5 6m0-6-5 6"/></svg>';if(state.sound)chime();}catch{toast('このブラウザでは音を開けなかったみたい。');}};
-const lightModes=['day','moon','cosmos'];
-const lightNames={day:'Day',moon:'Moon',cosmos:'Cosmos'};
-const lightIcons={day:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',moon:'<path d="M19.5 14.3A8 8 0 0 1 9.7 4.5a8 8 0 1 0 9.8 9.8Z"/>',cosmos:'<path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3Z"/><path d="M20 2v4m-2-2h4"/>'};
+const lightModes=['day','moon','cosmos','pearl'];
+const lightNames={day:'Day',moon:'Moon',cosmos:'Cosmos',pearl:'Pearl'};
+const lightIcons={pearl:'<circle cx="12" cy="12" r="7"/><path d="M8 10a4 4 0 0 1 4-3m7-4v4m-2-2h4"/>',day:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',moon:'<path d="M19.5 14.3A8 8 0 0 1 9.7 4.5a8 8 0 1 0 9.8 9.8Z"/>',cosmos:'<path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3Z"/><path d="M20 2v4m-2-2h4"/>'};
 function setLighting(lighting){
   if(!lightModes.includes(lighting))return;
   state.lighting=lighting;state.night=lighting!=='day';
   document.body.classList.toggle('night',state.night);document.body.classList.toggle('cosmos',lighting==='cosmos');
+  document.body.classList.toggle('pearl',lighting==='pearl');
   const next=lightModes[(lightModes.indexOf(lighting)+1)%lightModes.length];
   $('light').dataset.mode=lighting;$('light').setAttribute('aria-label',`${lightNames[lighting]}。次は${lightNames[next]}`);
   $('light').title=`${lightNames[lighting]} → ${lightNames[next]}`;$('light').innerHTML=`<svg viewBox="0 0 24 24">${lightIcons[lighting]}</svg>`;
   $('light-mode').value=lighting;
-  document.querySelector('meta[name="theme-color"]').content=lighting==='cosmos'?'#05071a':state.night?'#071321':'#082b32';
+  document.querySelector('meta[name="theme-color"]').content=lighting==='pearl'?'#090f17':lighting==='cosmos'?'#05071a':state.night?'#071321':'#082b32';
 }
 $('light').onclick=()=>setLighting(lightModes[(lightModes.indexOf(state.lighting)+1)%lightModes.length]);
 $('light-mode').onchange=()=>setLighting($('light-mode').value);setLighting('day');
@@ -487,7 +490,7 @@ $('photo').onclick=()=>{
   const picture=document.createElement('canvas');picture.width=canvas.width;picture.height=canvas.height;
   const ctx=picture.getContext('2d'),w=picture.width,h=picture.height;
   const gradient=ctx.createRadialGradient(w*.5,h*.35,0,w*.5,h*.35,Math.max(w,h)*.7);
-  gradient.addColorStop(0,state.lighting==='cosmos'?'#11132d':state.night?'#18364b':'#22626a');gradient.addColorStop(1,state.lighting==='cosmos'?'#030511':state.night?'#071321':'#061e29');ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);ctx.drawImage(canvas,0,0);
+  gradient.addColorStop(0,state.lighting==='pearl'?'#1b2630':state.lighting==='cosmos'?'#11132d':state.night?'#18364b':'#22626a');gradient.addColorStop(1,state.lighting==='pearl'?'#080d14':state.lighting==='cosmos'?'#030511':state.night?'#071321':'#061e29');ctx.fillStyle=gradient;ctx.fillRect(0,0,w,h);ctx.drawImage(canvas,0,0);
   ctx.fillStyle='#e7eee3';ctx.font=`italic ${Math.round(w*.025)}px Georgia`;ctx.fillText('Little Ocean.',w*.04,h*.08);ctx.font=`${Math.max(12,Math.round(w*.009))}px Georgia`;ctx.fillText('10718 · 10 / for Sumie',w*.04,h*.95);
   picture.toBlob(blob=>{if(!blob){toast('写真を保存できなかったみたい。');return;}const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='little-ocean-10718.png';a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);toast('海の一枚を、持って帰ろう。');},'image/png');
 };
@@ -500,7 +503,8 @@ function frame(now){
   raf=requestAnimationFrame(frame);const rawdt=clamp((now-last)/1000,0,.15);last=now;
   const dt=state.paused?0:Math.min(rawdt,.05);state.time+=dt;clock.value=state.time;
   moon.value=THREE.MathUtils.damp(moon.value,state.night?1:0,1.5,rawdt);
-  cosmos.value=THREE.MathUtils.damp(cosmos.value,state.lighting==='cosmos'?1:0,1.8,rawdt);
+  cosmos.value=THREE.MathUtils.damp(cosmos.value,['cosmos','pearl'].includes(state.lighting)?1:0,1.8,rawdt);
+  pearlGarden.update(state.lighting==='pearl',rawdt,state.mode,state.quality);
   ambient.intensity=(1.5-moon.value*.65)*(1.-cosmos.value*.82);sun.intensity=(3.3-moon.value*3)*(1.-cosmos.value*.8);rim.intensity=(1.45-moon.value*.4)*(1.-cosmos.value*.7);
   scene.fog.color.copy(fogDay).lerp(fogMoon,moon.value).lerp(fogCosmos,cosmos.value);
   glassMat.opacity=.025*(1.-cosmos.value*.8);tankEdges.material.opacity=.18*(1.-cosmos.value*.72);
@@ -519,5 +523,5 @@ canvas.addEventListener('webglcontextlost',event=>{event.preventDefault();cancel
 canvas.addEventListener('webglcontextrestored',()=>location.reload());
 
 // Read-only diagnostics for rendering/accessibility regression checks; no account data.
-window.oceanDiagnostics=()=>({version:'1.2.1',ready:state.ready,mode:state.mode,paused:state.paused,lighting:state.lighting,night:state.night,cosmos:cosmos.value,glowingFish:fishGlow.visible?glowGeo.drawRange.count:0,stars:starSky.visible?Math.min(skyGeo.drawRange.count,1400):0,geometryCount:renderer.info.memory.geometries,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,orbitZoom,orbitDistance:camera.position.distanceTo(orbitTarget),fogDensity:scene.fog.density,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
+window.oceanDiagnostics=()=>({version:'1.3.0',ready:state.ready,mode:state.mode,paused:state.paused,lighting:state.lighting,night:state.night,cosmos:cosmos.value,pearl:pearlGarden.diagnostics(),glowingFish:fishGlow.visible?glowGeo.drawRange.count:0,stars:starSky.visible?Math.min(skyGeo.drawRange.count,1400):0,geometryCount:renderer.info.memory.geometries,quality:state.quality,feeding:state.feeding,time:state.time,transition,moon:moon.value,fish:fishMesh.count,drawCalls:renderer.info.render.calls,triangles:renderer.info.render.triangles,camera:camera.position.toArray(),fov:camera.fov,orbitZoom,orbitDistance:camera.position.distanceTo(orbitTarget),fogDensity:scene.fog.density,swimPosition:swimPosition.toArray(),joystick:{...joy},sound:state.sound,audioState:audio?.state||'none',pixelRatio:renderer.getPixelRatio(),cup:cup.position.clone().project(camera).toArray(),manta:manta.position.clone().project(camera).toArray()});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
