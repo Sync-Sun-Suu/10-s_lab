@@ -1,6 +1,6 @@
 'use strict';
-const CACHE = '10718-black-coffee-v1';
-const ASSETS = ['./', './index.html', './clock.js', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-192.png', './icon-512.png'];
+const CACHE = '10718-black-coffee-v1.1';
+const ASSETS = ['./', './index.html', './clock.js?v=1.1', './manifest.webmanifest', './icon.svg', './icon-180.png', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });

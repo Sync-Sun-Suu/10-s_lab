@@ -2,8 +2,10 @@
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
+  const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  document.body.classList.toggle('standalone', !!standalone);
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
-  const defaults = { hour12: false, seconds: true, motion: !reduced.matches, night: false, awake: false, timezone: 'local', focus: false };
+  const defaults = { hour12: false, seconds: true, motion: !reduced.matches, night: false, awake: false, timezone: 'local', focus: false, flower: false };
   let stored = {};
   try { stored = JSON.parse(localStorage.getItem('10718-black-coffee') || '{}'); } catch (_) { /* Private browsing can disable storage. */ }
   const prefs = { ...defaults };
@@ -81,12 +83,14 @@
   const canvas = $('liquid');
   let gl = canvas.getContext('webgl', { alpha: false, antialias: false, powerPreference: 'low-power', preserveDrawingBuffer: false });
   let program, uniforms, raf = 0, lastFrame = 0, elapsed = 0, lost = false;
+  let warmth = 0, warmthTarget = 0;
   let touch = [-5, -5, -100];
   const vertex = 'attribute vec2 position; varying vec2 uv; void main(){uv=position*.5+.5;gl_Position=vec4(position,0.,1.);}';
   const fragment = `
     precision highp float;
     varying vec2 uv;
     uniform float time;
+    uniform float warmth;
     uniform vec3 touch;
     float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
     float noise(vec2 p){vec2 i=floor(p),f=fract(p); f=f*f*(3.-2.*f);return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y);}
@@ -109,6 +113,7 @@
       vec3 bronze=vec3(.59,.37,.18);
       vec3 sea=vec3(.23,.43,.40);
       vec3 light=mix(bronze,sea,sweep);
+      light=mix(light,vec3(.72,.42,.18),warmth*.8);
       float clarity=smoothstep(.12,.92,r);
       vec3 color=ink+light*(veins*.34+fine*.14+n*.10)*clarity;
       color+=vec3(.65,.51,.28)*pow(max(0.,sin(theta+2.2)*.5+.5),8.)*pow(r,7.)*.4;
@@ -133,7 +138,7 @@
       const buffer = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
       const location = gl.getAttribLocation(program, 'position'); gl.enableVertexAttribArray(location); gl.vertexAttribPointer(location, 2, gl.FLOAT, false, 0, 0);
-      uniforms = { time: gl.getUniformLocation(program, 'time'), touch: gl.getUniformLocation(program, 'touch') };
+      uniforms = { time: gl.getUniformLocation(program, 'time'), touch: gl.getUniformLocation(program, 'touch'), warmth: gl.getUniformLocation(program, 'warmth') };
       gl.deleteShader(vs); gl.deleteShader(fs);
       resizeVisual();
     } catch (_) { gl = null; canvas.style.display = 'none'; }
@@ -146,12 +151,13 @@
   }
   function drawVisual() {
     if (!gl || lost || !uniforms) return;
-    gl.uniform1f(uniforms.time, elapsed); gl.uniform3fv(uniforms.touch, touch); gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.uniform1f(uniforms.time, elapsed); gl.uniform1f(uniforms.warmth, warmth); gl.uniform3fv(uniforms.touch, touch); gl.drawArrays(gl.TRIANGLES, 0, 6);
   }
   function animate(timestamp) {
     if (!gl || lost || !prefs.motion || reduced.matches || document.hidden) { raf = 0; return; }
     if (timestamp - lastFrame >= 1000 / 24) {
       elapsed += Math.min((timestamp - (lastFrame || timestamp)) / 1000, .1);
+      warmth += (warmthTarget - warmth) * .045;
       lastFrame = timestamp; drawVisual();
     }
     raf = requestAnimationFrame(animate);
@@ -208,16 +214,34 @@
     if (subtitle) { const s = document.createElement('small'); s.textContent = subtitle; $('letter').append(s); }
     $('letter').classList.add('visible'); messageTimer = setTimeout(() => $('letter').classList.remove('visible'), duration);
   }
-  function showTulip() { $('tulip').classList.add('visible'); }
+  function showTulip() {
+    $('tulip').classList.add('visible'); $('flower').classList.add('visible'); $('flower').disabled = false;
+    prefs.flower = true; persist();
+  }
+  let flowerTimer;
+  $('flower').addEventListener('click', () => {
+    clearTimeout(flowerTimer); $('flower').classList.remove('nod');
+    void $('flower').offsetWidth;
+    $('flower').classList.add('nod');
+    flowerTimer = setTimeout(() => $('flower').classList.remove('nod'), 1500);
+    announce('持ってるよ。今日も。', 'ONE LITTLE FLOWER, STILL HERE.');
+    note(659.25, 0, .055); note(523.25, .22, .04);
+  });
+  function setBrew(active) {
+    $('world').classList.toggle('brewing', active);
+    warmthTarget = active ? 1 : 0;
+    if (!prefs.motion || reduced.matches) { warmth = warmthTarget; drawVisual(); }
+  }
   $('coffee').addEventListener('click', () => {
     coffeeBreak = !coffeeBreak; $('coffee').setAttribute('aria-pressed', String(coffeeBreak));
+    setBrew(coffeeBreak);
     clearTimeout(breakTimer);
     if (coffeeBreak) {
       const message = messages[breakCount++ % messages.length]; announce(...message, 6500);
       if ((breakCount - 1) % messages.length === 3) showTulip();
       $('caption').textContent = 'the darker, the sweeter.';
       note(261.63); note(329.63, .25); note(392, .6); note(523.25, 1.15, .075);
-      breakTimer = setTimeout(() => { coffeeBreak = false; $('coffee').setAttribute('aria-pressed', 'false'); $('caption').textContent = 'a little closer, a little sweeter.'; }, 30000);
+      breakTimer = setTimeout(() => { coffeeBreak = false; setBrew(false); $('coffee').setAttribute('aria-pressed', 'false'); $('caption').textContent = 'a little closer, a little sweeter.'; }, 30000);
     } else { $('letter').classList.remove('visible'); $('caption').textContent = 'a little closer, a little sweeter.'; }
   });
   let taps = 0;
@@ -255,7 +279,7 @@
     document.body.classList.toggle('still', !prefs.motion || reduced.matches);
     $('seconds').hidden = !prefs.seconds; $('second-orbit').hidden = !prefs.seconds;
     $('focus').setAttribute('aria-pressed', String(prefs.focus)); $('focus').setAttribute('aria-label', prefs.focus ? '全体のデザインに戻す' : '時刻を大きく眺める');
-    if (prefs.motion && !reduced.matches) startVisual(); else stopVisual();
+    if (prefs.motion && !reduced.matches) startVisual(); else { stopVisual(); warmth = warmthTarget; drawVisual(); }
     if (!prefs.awake && wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
     if (!prefs.awake) $('awake-status').textContent = '';
     requestWake();
@@ -277,7 +301,8 @@
     else { startVisual(); requestWake(); if (audio && soundEnabled) audio.resume().catch(() => {}); }
   });
   window.addEventListener('pageshow', () => { scheduleClock(); requestWake(); });
-  if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) $('install-help').hidden = true;
+  if (standalone) $('install-help').hidden = true;
+  if (prefs.flower) showTulip();
   syncSettings();
   if ('serviceWorker' in navigator && location.protocol !== 'file:') {
     navigator.serviceWorker.register('./sw.js').catch(() => { /* The clock also works without offline caching. */ });
